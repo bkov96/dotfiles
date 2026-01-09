@@ -1,0 +1,23 @@
+[user]
+	name = {{ .name }}
+	email = {{ .email }}
+[alias]
+        st = status
+        br = branch
+        cm = commit
+        cma = commit --amend
+        ch = checkout
+        sw = switch
+        egc = config --edit --global
+        elc = config --edit --local
+[commit]
+	gpgSign = false
+[tag]
+	forceSignAnnotated = false
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[core]
+	excludesfile = ~/.gitignore_global

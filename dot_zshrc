@@ -1,0 +1,7 @@
+# User-defined aliases
+
+alias ll="ls -l"
+
+source $(brew --prefix nvm)/nvm.sh
+
+export PATH="/opt/homebrew/opt/dotnet@8/bin:$PATH"
