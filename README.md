@@ -9,6 +9,9 @@ environments/
   <env>/
     <platform>/
       dotfiles/             # config files to be linked/rendered into $HOME
+      setup/
+        init.sh             # sets up the platform and creates .env / .config.json
+        install.sh          # installs all dependencies (e.g. brew bundle)
       .env.example          # required environment variables (copy to .env and fill in)
       .config.example.json  # optional path overrides (copy to .config.json to customize)
       ...                   # platform-specific files (e.g. Brewfile on macOS)
@@ -28,49 +31,45 @@ Currently available environments: `work/mac`, `homelab/mac`.
 
 ## 🚀 Bootstrap a new machine on macOS
 
-### 1. Install Xcode Command Line Tools
+You only need two things to get started: `git` and `make`. On macOS, both ship with Xcode Command Line Tools.
 
-This gives you `git` and basic build tools:
+### 1. Install Xcode Command Line Tools
 
 ```sh
 xcode-select --install
 ```
 
-### 2. Install Homebrew
-
-```sh
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
-
-Follow the post-install instructions to add Homebrew to your `PATH`.
-
-### 3. Clone this repo
+### 2. Clone this repo
 
 ```sh
 git clone https://github.com/bkov/dotfiles.git ~/repos/dotfiles
 cd ~/repos/dotfiles
 ```
 
-### 4. Install packages
-
-Pick your environment (e.g. `work/mac`) and install everything via Homebrew:
+### 3. Initialize the environment
 
 ```sh
-brew bundle --file environments/work/mac/Brewfile
+make init
 ```
 
-### 5. Create your `.env`
+This installs Homebrew (if missing), then creates `.env` and `.config.json` from the example files. If Xcode CLT or Homebrew need a manual step to complete, the script will tell you — just re-run `make init` afterwards.
 
-```sh
-cp environments/work/mac/.env.example environments/work/mac/.env
-```
+### 4. Fill in your `.env`
 
-Open `.env` and fill in your values:
+Open `environments/work/mac/.env` and set your values:
 
 ```sh
 GIT_CONFIG_NAME=Jane Doe
 GIT_CONFIG_EMAIL=jane@example.com
 ```
+
+### 5. Install dependencies
+
+```sh
+make install
+```
+
+Runs `brew bundle` to install all packages from the Brewfile.
 
 ### 6. Link dotfiles
 
@@ -78,13 +77,15 @@ GIT_CONFIG_EMAIL=jane@example.com
 make link
 ```
 
-For a different environment or platform:
+That's it — your dotfiles are live. 🎉
+
+For a different environment or platform, pass variables to any target:
 
 ```sh
+make init ENV=homelab PLATFORM=mac
+make install ENV=homelab PLATFORM=mac
 make link ENV=homelab PLATFORM=mac
 ```
-
-That's it — your dotfiles are live. 🎉
 
 ---
 
