@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-ENV_DIR="$1"
+PROFILE_DIR="$1"
 
 # Install Xcode Command Line Tools if not present
 if ! xcode-select -p >/dev/null 2>&1; then
@@ -24,18 +24,18 @@ else
 fi
 
 # Copy .env.example -> .env if not present
-if [ ! -f "$ENV_DIR/.env" ]; then
-  cp "$ENV_DIR/.env.example" "$ENV_DIR/.env"
-  echo "  Created $ENV_DIR/.env from .env.example"
-  echo "  ⚠️  Fill in your values in $ENV_DIR/.env before running 'make link'"
+if [ ! -f "$PROFILE_DIR/.env" ]; then
+  cp "$PROFILE_DIR/.env.example" "$PROFILE_DIR/.env"
+  echo "  Created $PROFILE_DIR/.env from .env.example"
+  echo "  ⚠️  Fill in your values in $PROFILE_DIR/.env before running 'make link'"
 else
-  echo "  $ENV_DIR/.env already exists, skipping"
+  echo "  $PROFILE_DIR/.env already exists, skipping"
 fi
 
 # Copy .config.example.json -> .config.json if not present
-if [ -f "$ENV_DIR/.config.example.json" ] && [ ! -f "$ENV_DIR/.config.json" ]; then
-  cp "$ENV_DIR/.config.example.json" "$ENV_DIR/.config.json"
-  echo "  Created $ENV_DIR/.config.json from .config.example.json"
+if [ -f "$PROFILE_DIR/.config.example.json" ] && [ ! -f "$PROFILE_DIR/.config.json" ]; then
+  cp "$PROFILE_DIR/.config.example.json" "$PROFILE_DIR/.config.json"
+  echo "  Created $PROFILE_DIR/.config.json from .config.example.json"
 else
-  echo "  $ENV_DIR/.config.json already exists or no example found, skipping"
+  echo "  $PROFILE_DIR/.config.json already exists or no example found, skipping"
 fi

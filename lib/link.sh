@@ -1,25 +1,25 @@
 #!/bin/sh
 set -e
 
-ENV_DIR="$1"
+PROFILE_DIR="$1"
 DOTFILES_DIR="$2"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 set -a
 # shellcheck source=/dev/null
-. "$ENV_DIR/.env"
+. "$PROFILE_DIR/.env"
 set +a
 
 # Build envsubst allowlist from .env variable names only
-ENVSUBST_VARS=$(grep -v '^#' "$ENV_DIR/.env" | grep '=' | sed 's/=.*//' | sed 's/^/\$/' | tr '\n' ' ')
+ENVSUBST_VARS=$(grep -v '^#' "$PROFILE_DIR/.env" | grep '=' | sed 's/=.*//' | sed 's/^/\$/' | tr '\n' ' ')
 
 for src in "$DOTFILES_DIR"/.*; do
   filename=$(basename "$src")
   [ "$filename" = "." ] || [ "$filename" = ".." ] && continue
   default_dest="$HOME/$(echo "$filename" | sed 's/\.tmpl$//')"
 
-  if [ -f "$ENV_DIR/.config.json" ]; then
-    custom_dest=$(jq -r --arg f "$filename" '.paths[$f] // empty' "$ENV_DIR/.config.json")
+  if [ -f "$PROFILE_DIR/.config.json" ]; then
+    custom_dest=$(jq -r --arg f "$filename" '.paths[$f] // empty' "$PROFILE_DIR/.config.json")
   fi
 
   if [ -n "$custom_dest" ]; then

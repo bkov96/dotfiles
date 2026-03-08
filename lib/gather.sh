@@ -1,15 +1,15 @@
 #!/bin/sh
 set -e
 
-ENV_DIR="$1"
+PROFILE_DIR="$1"
 DOTFILES_DIR="$2"
 
 set -a
 # shellcheck source=/dev/null
-. "$ENV_DIR/.env"
+. "$PROFILE_DIR/.env"
 set +a
 
-var_names=$(grep -v '^#' "$ENV_DIR/.env" | grep '=' | sed 's/=.*//')
+var_names=$(grep -v '^#' "$PROFILE_DIR/.env" | grep '=' | sed 's/=.*//')
 
 for src in "$DOTFILES_DIR"/.*; do
   filename=$(basename "$src")
@@ -20,8 +20,8 @@ for src in "$DOTFILES_DIR"/.*; do
 
   default_dest="$HOME/$(echo "$filename" | sed 's/\.tmpl$//')"
 
-  if [ -f "$ENV_DIR/.config.json" ]; then
-    custom_dest=$(jq -r --arg f "$filename" '.paths[$f] // empty' "$ENV_DIR/.config.json")
+  if [ -f "$PROFILE_DIR/.config.json" ]; then
+    custom_dest=$(jq -r --arg f "$filename" '.paths[$f] // empty' "$PROFILE_DIR/.config.json")
   fi
 
   if [ -n "$custom_dest" ]; then

@@ -2,13 +2,13 @@
 
 [![verify](https://github.com/bkov96/dotfiles/actions/workflows/verify.yml/badge.svg)](https://github.com/bkov96/dotfiles/actions/workflows/verify.yml)
 
-Personal machine configuration, organized by environment and platform. Dotfiles are symlinked into `$HOME`, with template files rendered using `envsubst` to inject personal values like name and email.
+Personal machine configuration, organized by profile and platform. Dotfiles are symlinked into `$HOME`, with template files rendered using `envsubst` to inject personal values like name and email.
 
 ## 📁 Structure
 
 ```
-environments/
-  <env>/
+profiles/
+  <profile>/
     <platform>/
       dotfiles/             # config files to be linked/rendered into $HOME
       setup/
@@ -19,7 +19,7 @@ environments/
       ...                   # platform-specific files (e.g. Brewfile on macOS)
 ```
 
-Currently available environments: `work/mac`, `homelab/mac`.
+Currently available profiles: `work/mac`, `homelab/mac`.
 
 ### How it works
 
@@ -39,7 +39,7 @@ Commands come in pairs — one direction pushes from the repo to the machine, th
 | --------- | ---------------------------------------------------------------------------------------------------- |
 | `init`    | Set up a new machine: install platform dependencies and create `.env` / `.config.json` from examples |
 |           |                                                                                                      |
-| `install` | Install all environment packages (e.g. `brew bundle`)                                                |
+| `install` | Install all profile packages (e.g. `brew bundle`)                                                    |
 | `capture` | Capture installed packages back into the repository (e.g. `Brewfile`)                                |
 |           |                                                                                                      |
 | `link`    | Render templates and symlink dotfiles into the machine                                               |
@@ -47,14 +47,14 @@ Commands come in pairs — one direction pushes from the repo to the machine, th
 |           |                                                                                                      |
 | `format`  | Auto-format all `.sh` and `.json` files in the repository                                            |
 | `verify`  | Run shellcheck and format checks on all scripts and JSON files                                       |
-| `env`     | Print current `DOTFILES_ENV` and `DOTFILES_PLATFORM` values                                          |
+| `env`     | Print current `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` values                                      |
 | `where`   | Print the absolute repository path                                                                   |
 | `help`    | Show the help message                                                                                |
 
-All commands accept `DOTFILES_ENV` and `DOTFILES_PLATFORM` overrides:
+All commands accept `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` overrides:
 
 ```sh
-make capture DOTFILES_ENV=homelab DOTFILES_PLATFORM=mac
+make capture DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
 ```
 
 ---
@@ -76,7 +76,7 @@ git clone https://github.com/bkov96/dotfiles.git ~/repos/dotfiles
 cd ~/repos/dotfiles
 ```
 
-### 3. Initialize the environment
+### 3. Initialize the profile
 
 ```sh
 make init
@@ -86,7 +86,7 @@ This installs Homebrew (if missing), then creates `.env` and `.config.json` from
 
 ### 4. Fill in your `.env`
 
-Open `environments/work/mac/.env` and set your values:
+Open `profiles/work/mac/.env` and set your values:
 
 ```sh
 GIT_CONFIG_NAME=Jane Doe
@@ -113,7 +113,7 @@ That's it — your dotfiles are live. 🎉
 
 > ```sh
 > dotfiles link
-> dotfiles gather DOTFILES_ENV=homelab DOTFILES_PLATFORM=mac
+> dotfiles gather DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
 > ```
 
 ---
@@ -123,7 +123,7 @@ That's it — your dotfiles are live. 🎉
 By default every file in `dotfiles/` lands in `$HOME`. To put a file somewhere else, create a `.config.json` from the example:
 
 ```sh
-cp environments/<env>/<platform>/.config.example.json environments/<env>/<platform>/.config.json
+cp profiles/<profile>/<platform>/.config.example.json profiles/<profile>/<platform>/.config.json
 ```
 
 Then override only the paths you care about — everything else is still auto-discovered:
