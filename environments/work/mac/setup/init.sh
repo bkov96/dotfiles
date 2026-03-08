@@ -4,7 +4,7 @@ set -e
 ENV_DIR="$1"
 
 # Install Xcode Command Line Tools if not present
-if ! xcode-select -p > /dev/null 2>&1; then
+if ! xcode-select -p >/dev/null 2>&1; then
   echo "  Installing Xcode Command Line Tools..."
   xcode-select --install
   echo "  ⚠️  Complete the Xcode CLT installation dialog, then re-run 'make init'"
@@ -14,7 +14,7 @@ else
 fi
 
 # Install Homebrew if not present
-if ! command -v brew > /dev/null 2>&1; then
+if ! command -v brew >/dev/null 2>&1; then
   echo "  Installing Homebrew..."
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   echo "  ⚠️  Follow Homebrew's post-install instructions to add it to your PATH, then re-run 'make init'"

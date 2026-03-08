@@ -23,6 +23,9 @@ link: $(ENV_DIR)/.env
 	@sh lib/link.sh $(ENV_DIR) $(DOTFILES_DIR)
 	@echo "Done."
 
+format:
+	@sh lib/format.sh
+
 verify:
 	@sh lib/verify.sh
 

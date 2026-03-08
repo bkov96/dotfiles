@@ -2,14 +2,18 @@ name: verify
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  shellcheck:
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run shellcheck
-        run: find . -name "*.sh" | sort | xargs shellcheck
+      - name: Install tools
+        run: sudo apt-get install -y shellcheck shfmt
+      - name: Run verify
+        run: make verify

@@ -29,7 +29,7 @@ for src in "$DOTFILES_DIR"/.*; do
   fi
 
   if echo "$filename" | grep -q '\.tmpl$'; then
-    envsubst "$ENVSUBST_VARS" < "$src" > "$dest"
+    envsubst "$ENVSUBST_VARS" <"$src" >"$dest"
     echo "  Rendered $filename -> $dest"
   else
     ln -sf "$REPO_DIR/$src" "$dest"
