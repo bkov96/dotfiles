@@ -28,6 +28,11 @@ link: $(ENV_DIR)/.env
 	@sh lib/link.sh $(ENV_DIR) $(DOTFILES_DIR)
 	@echo "Done."
 
+gather: $(ENV_DIR)/.env
+	@echo "Gathering dotfiles for $(ENV)/$(PLATFORM)..."
+	@sh lib/gather.sh $(ENV_DIR) $(DOTFILES_DIR)
+	@echo "Done."
+
 format:
 	@sh lib/format.sh
 
