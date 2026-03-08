@@ -79,6 +79,14 @@ make link
 
 That's it — your dotfiles are live. 🎉
 
+> 💡 After `make link`, a `dotfiles` shell function is available in every new terminal. You can use it from anywhere instead of navigating to the repo:
+
+```sh
+dotfiles link
+dotfiles install
+dotfiles init ENV=homelab PLATFORM=mac
+```
+
 For a different environment or platform, pass variables to any target:
 
 ```sh

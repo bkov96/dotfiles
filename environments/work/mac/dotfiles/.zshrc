@@ -1,3 +1,9 @@
+# Dotfiles management
+
+dotfiles() {
+  make -C ~/repos/dotfiles "$@"
+}
+
 # User-defined aliases
 
 alias ll="ls -l"
