@@ -1,5 +1,7 @@
 # 🏠 dotfiles
 
+[![verify](https://github.com/bkov96/dotfiles/actions/workflows/verify.yml/badge.svg)](https://github.com/bkov96/dotfiles/actions/workflows/verify.yml)
+
 Personal machine configuration, organized by environment and platform. Dotfiles are symlinked into `$HOME`, with template files rendered using `envsubst` to inject personal values like name and email.
 
 ## 📁 Structure
