@@ -23,6 +23,9 @@ link: $(ENV_DIR)/.env
 	@sh lib/link.sh $(ENV_DIR) $(DOTFILES_DIR)
 	@echo "Done."
 
+verify:
+	@sh lib/verify.sh
+
 $(ENV_DIR)/.env:
 	@echo "Error: $(ENV_DIR)/.env not found. Run 'make init' first."
 	@exit 1

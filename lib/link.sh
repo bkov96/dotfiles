@@ -6,6 +6,7 @@ DOTFILES_DIR="$2"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 set -a
+# shellcheck source=/dev/null
 . "$ENV_DIR/.env"
 set +a
 
