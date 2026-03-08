@@ -1,0 +1,6 @@
+{
+  "paths": {
+    ".gitconfig.tmpl": "~/.gitconfig",
+    ".zshrc": "~/.zshrc"
+  }
+}
