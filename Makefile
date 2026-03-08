@@ -3,6 +3,7 @@
 ifndef DOTFILES_PROFILE
 $(error DOTFILES_PROFILE is not set. Export it in your .zshrc or pass it as an argument)
 endif
+
 ifndef DOTFILES_PLATFORM
 $(error DOTFILES_PLATFORM is not set. Export it in your .zshrc or pass it as an argument)
 endif

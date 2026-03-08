@@ -5,6 +5,14 @@
 
 Personal machine configuration, organized by profile and platform. Dotfiles are symlinked into `$HOME`, with template files rendered using `envsubst` to inject personal values like name and email.
 
+## Contents
+
+- [Structure](#-structure)
+- [Commands](#-commands)
+- [Bootstrap a new machine](#-bootstrap-a-new-machine)
+- [Customizing paths](#️-customizing-paths)
+- [Forking](#-forking)
+
 ## 📁 Structure
 
 ```
@@ -61,62 +69,9 @@ make capture DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
 
 ---
 
-## 🚀 Bootstrap a new machine on macOS (e.g. `work/mac`)
+## 🚀 Bootstrap a new machine
 
-You only need two things to get started: `git` and `make`. On macOS, both ship with Xcode Command Line Tools.
-
-### 1. Install Xcode Command Line Tools
-
-```sh
-xcode-select --install
-```
-
-### 2. Clone this repo
-
-```sh
-git clone https://github.com/bkov96/dotfiles.git ~/repos/dotfiles
-cd ~/repos/dotfiles
-```
-
-### 3. Initialize the profile
-
-```sh
-make init
-```
-
-This installs Homebrew (if missing), then creates `.env` and `.config.json` from the example files. If Xcode CLT or Homebrew need a manual step to complete, the script will tell you — just re-run `make init` afterwards.
-
-### 4. Fill in your `.env`
-
-Open `profiles/work/mac/.env` and set your values:
-
-```sh
-GIT_CONFIG_NAME=Jane Doe
-GIT_CONFIG_EMAIL=jane@example.com
-```
-
-### 5. Install dependencies
-
-```sh
-make install
-```
-
-Runs `brew bundle` to install all packages from the Brewfile.
-
-### 6. Link dotfiles
-
-```sh
-make link
-```
-
-That's it — your dotfiles are live. 🎉
-
-> 💡 After `make link`, a `dotfiles` shell function is available in every new terminal. You can use it from anywhere instead of navigating to the repo:
-
-> ```sh
-> dotfiles link
-> dotfiles gather DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
-> ```
+See [docs/bootstrap.md](docs/bootstrap.md) for step-by-step macOS setup instructions.
 
 ---
 
@@ -140,3 +95,9 @@ Then override only the paths you care about — everything else is still auto-di
 ```
 
 Both `.env` and `.config.json` are gitignored and never committed.
+
+---
+
+## 🍴 Forking
+
+Want to use this structure for your own machines? See [docs/forking.md](docs/forking.md).
