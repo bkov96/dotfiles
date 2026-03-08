@@ -18,6 +18,11 @@ install:
 	@sh $(ENV_DIR)/setup/install.sh $(ENV_DIR)
 	@echo "Done."
 
+capture:
+	@echo "Capturing installed packages for $(ENV)/$(PLATFORM)..."
+	@sh $(ENV_DIR)/setup/capture.sh $(ENV_DIR)
+	@echo "Done."
+
 link: $(ENV_DIR)/.env
 	@echo "Linking dotfiles for $(ENV)/$(PLATFORM)..."
 	@sh lib/link.sh $(ENV_DIR) $(DOTFILES_DIR)
