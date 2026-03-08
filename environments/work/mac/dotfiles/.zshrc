@@ -1,5 +1,8 @@
 # Dotfiles management
 
+export DOTFILES_ENV="work"
+export DOTFILES_PLATFORM="mac"
+
 dotfiles() {
   make -C ~/repos/dotfiles "$@"
 }

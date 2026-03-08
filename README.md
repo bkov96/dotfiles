@@ -47,18 +47,19 @@ Commands come in pairs — one direction pushes from the repo to the machine, th
 |           |                                                                                                      |
 | `format`  | Auto-format all `.sh` and `.json` files in the repository                                            |
 | `verify`  | Run shellcheck and format checks on all scripts and JSON files                                       |
+| `env`     | Print current `DOTFILES_ENV` and `DOTFILES_PLATFORM` values                                          |
 | `where`   | Print the absolute repository path                                                                   |
 | `help`    | Show the help message                                                                                |
 
-All commands accept `ENV` and `PLATFORM` overrides:
+All commands accept `DOTFILES_ENV` and `DOTFILES_PLATFORM` overrides:
 
 ```sh
-make capture ENV=homelab PLATFORM=mac
+make capture DOTFILES_ENV=homelab DOTFILES_PLATFORM=mac
 ```
 
 ---
 
-## 🚀 Bootstrap a new machine on macOS
+## 🚀 Bootstrap a new machine on macOS (e.g. `work/mac`)
 
 You only need two things to get started: `git` and `make`. On macOS, both ship with Xcode Command Line Tools.
 
@@ -112,7 +113,7 @@ That's it — your dotfiles are live. 🎉
 
 > ```sh
 > dotfiles link
-> dotfiles gather ENV=homelab PLATFORM=mac
+> dotfiles gather DOTFILES_ENV=homelab DOTFILES_PLATFORM=mac
 > ```
 
 ---

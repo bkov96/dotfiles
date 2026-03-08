@@ -1,9 +1,9 @@
 #!/bin/sh
 
-ENV="$1"
-PLATFORM="$2"
+DOTFILES_ENV="$1"
+DOTFILES_PLATFORM="$2"
 
-echo "Usage: dotfiles <command> [ENV=<env>] [PLATFORM=<platform>]"
+echo "Usage: dotfiles <command> [DOTFILES_ENV=<env>] [DOTFILES_PLATFORM=<platform>]"
 echo ""
 echo "Commands:"
 echo "  init      Set up a new machine:"
@@ -19,8 +19,9 @@ echo "  gather    Gather rendered dotfiles from the machine back into repository
 echo ""
 echo "  format    Auto-format all .sh and .json files in the repository"
 echo "  verify    Run shellcheck and format checks on all scripts and JSON files in the repository"
+echo "  env       Print current DOTFILES_ENV and DOTFILES_PLATFORM values"
 echo "  where     Print the absolute repository path"
 echo "  help      Show this help message"
 echo ""
-echo "Defaults: ENV=$ENV, PLATFORM=$PLATFORM"
-echo "Example:  dotfiles link ENV=homelab PLATFORM=mac"
+echo "Current: DOTFILES_ENV=$DOTFILES_ENV, DOTFILES_PLATFORM=$DOTFILES_PLATFORM"
+echo "Example:  dotfiles link DOTFILES_ENV=homelab DOTFILES_PLATFORM=mac"
