@@ -11,6 +11,9 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      DOTFILES_PROFILE: github
+      DOTFILES_PLATFORM: ci
     steps:
       - uses: actions/checkout@v4
       - name: Install tools
