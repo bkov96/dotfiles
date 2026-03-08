@@ -51,6 +51,9 @@ format:
 verify:
 	@sh lib/verify.sh
 
+test:
+	@sh profiles/$(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)/test.sh
+
 $(PROFILE_DIR)/.env:
 	@echo "Error: $(PROFILE_DIR)/.env not found. Run 'make init' first."
 	@exit 1

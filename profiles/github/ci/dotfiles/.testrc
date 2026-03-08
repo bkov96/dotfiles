@@ -1,0 +1,2 @@
+# test rc file
+export TEST_VAR=hello

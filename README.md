@@ -1,6 +1,7 @@
 # 🏠 dotfiles
 
 [![verify](https://github.com/bkov96/dotfiles/actions/workflows/verify.yml/badge.svg)](https://github.com/bkov96/dotfiles/actions/workflows/verify.yml)
+[![test](https://github.com/bkov96/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/bkov96/dotfiles/actions/workflows/test.yml)
 
 Personal machine configuration, organized by profile and platform. Dotfiles are symlinked into `$HOME`, with template files rendered using `envsubst` to inject personal values like name and email.
 
@@ -19,7 +20,7 @@ profiles/
       ...                   # platform-specific files (e.g. Brewfile on macOS)
 ```
 
-Currently available profiles: `work/mac`, `homelab/mac`.
+Currently available profiles: `work/mac`, `homelab/mac`, `github/ci` (CI only).
 
 ### How it works
 
@@ -47,6 +48,7 @@ Commands come in pairs — one direction pushes from the repo to the machine, th
 |           |                                                                                                      |
 | `format`  | Auto-format all `.sh` and `.json` files in the repository                                            |
 | `verify`  | Run shellcheck and format checks on all scripts and JSON files                                       |
+| `test`    | Run end-to-end tests for `link` and `gather` against the active profile's test fixtures              |
 | `env`     | Print current `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` values                                      |
 | `where`   | Print the absolute repository path                                                                   |
 | `help`    | Show the help message                                                                                |

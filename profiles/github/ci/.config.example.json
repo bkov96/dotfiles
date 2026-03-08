@@ -1,0 +1,6 @@
+{
+  "paths": {
+    ".testconfig.tmpl": "~/.testconfig",
+    ".testrc": "~/.testrc"
+  }
+}
