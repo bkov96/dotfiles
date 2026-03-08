@@ -1,6 +1,5 @@
 tap "azure/kubelogin"
 brew "azure-cli"
-brew "chezmoi"
 brew "dotnet@8"
 brew "git-lfs"
 brew "kubernetes-cli"
