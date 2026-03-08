@@ -1,7 +1,12 @@
+.DEFAULT_GOAL := help
+
 ENV ?= work
 PLATFORM ?= mac
 ENV_DIR := environments/$(ENV)/$(PLATFORM)
 DOTFILES_DIR := $(ENV_DIR)/dotfiles
+
+help:
+	@sh lib/help.sh $(ENV) $(PLATFORM)
 
 init:
 	@echo "Initializing $(ENV)/$(PLATFORM)..."
