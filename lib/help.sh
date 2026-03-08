@@ -19,6 +19,7 @@ echo "  gather    Gather rendered dotfiles from the machine back into repository
 echo ""
 echo "  format    Auto-format all .sh and .json files in the repository"
 echo "  verify    Run shellcheck and format checks on all scripts and JSON files in the repository"
+echo "  where     Print the absolute repository path"
 echo "  help      Show this help message"
 echo ""
 echo "Defaults: ENV=$ENV, PLATFORM=$PLATFORM"

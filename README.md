@@ -47,6 +47,7 @@ Commands come in pairs — one direction pushes from the repo to the machine, th
 |           |                                                                                                      |
 | `format`  | Auto-format all `.sh` and `.json` files in the repository                                            |
 | `verify`  | Run shellcheck and format checks on all scripts and JSON files                                       |
+| `where`   | Print the absolute repository path                                                                   |
 | `help`    | Show the help message                                                                                |
 
 All commands accept `ENV` and `PLATFORM` overrides:

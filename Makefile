@@ -33,6 +33,9 @@ gather: $(ENV_DIR)/.env
 	@sh lib/gather.sh $(ENV_DIR) $(DOTFILES_DIR)
 	@echo "Done."
 
+where:
+	@pwd
+
 format:
 	@sh lib/format.sh
 
