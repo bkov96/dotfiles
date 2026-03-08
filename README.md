@@ -27,7 +27,33 @@ Currently available environments: `work/mac`, `homelab/mac`.
 - **Template files** (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using variables from `.env`, and written to `$HOME` (without the `.tmpl` suffix)
 - By default all files land in `$HOME`. Override individual destinations via `.config.json`
 
-> 💡 **No reverse sync needed for symlinked files.** Because plain dotfiles are symlinks, any edits you make directly on the machine (e.g. tweaking `.zshrc`) are instantly reflected in this repo — just `git add` and commit as usual. Note: template files (`.tmpl`) are rendered as copies, so edits to e.g. `~/.gitconfig` on the machine won't sync back — edit the `.tmpl` source in the repo instead.
+> 💡 **No reverse sync needed for symlinked files.** Because plain dotfiles are symlinks, any edits you make directly on the machine (e.g. tweaking `.zshrc`) are instantly reflected in this repo — just `git add` and commit as usual. Template files (`.tmpl`) are rendered as copies, so edits to e.g. `~/.gitconfig` on the machine won't sync back automatically — use `make gather` to pull them back into the repo.
+
+---
+
+## 📦 Commands
+
+Commands come in pairs — one direction pushes from the repo to the machine, the other pulls state back.
+
+| Command   | Description                                                                                          |
+| --------- | ---------------------------------------------------------------------------------------------------- |
+| `init`    | Set up a new machine: install platform dependencies and create `.env` / `.config.json` from examples |
+|           |                                                                                                      |
+| `install` | Install all environment packages (e.g. `brew bundle`)                                                |
+| `capture` | Capture installed packages back into the repository (e.g. `Brewfile`)                                |
+|           |                                                                                                      |
+| `link`    | Render templates and symlink dotfiles into the machine                                               |
+| `gather`  | Gather rendered dotfiles from the machine back into repository templates                             |
+|           |                                                                                                      |
+| `format`  | Auto-format all `.sh` and `.json` files in the repository                                            |
+| `verify`  | Run shellcheck and format checks on all scripts and JSON files                                       |
+| `help`    | Show the help message                                                                                |
+
+All commands accept `ENV` and `PLATFORM` overrides:
+
+```sh
+make capture ENV=homelab PLATFORM=mac
+```
 
 ---
 
@@ -83,19 +109,10 @@ That's it — your dotfiles are live. 🎉
 
 > 💡 After `make link`, a `dotfiles` shell function is available in every new terminal. You can use it from anywhere instead of navigating to the repo:
 
-```sh
-dotfiles link
-dotfiles install
-dotfiles init ENV=homelab PLATFORM=mac
-```
-
-For a different environment or platform, pass variables to any target:
-
-```sh
-make init ENV=homelab PLATFORM=mac
-make install ENV=homelab PLATFORM=mac
-make link ENV=homelab PLATFORM=mac
-```
+> ```sh
+> dotfiles link
+> dotfiles gather ENV=homelab PLATFORM=mac
+> ```
 
 ---
 
