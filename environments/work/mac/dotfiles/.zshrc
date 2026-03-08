@@ -11,4 +11,4 @@ alias ll="ls -l"
 source $(brew --prefix nvm)/nvm.sh
 
 export PATH="/opt/homebrew/opt/kubelogin:/opt/homebrew/opt/dotnet@8/bin:$PATH"
-export PATH="/Users/bkov/.dotnet/tools:$PATH"
+export PATH="$HOME/.dotnet/tools:$PATH"

@@ -71,7 +71,7 @@ xcode-select --install
 ### 2. Clone this repo
 
 ```sh
-git clone https://github.com/bkov/dotfiles.git ~/repos/dotfiles
+git clone https://github.com/bkov96/dotfiles.git ~/repos/dotfiles
 cd ~/repos/dotfiles
 ```
 
