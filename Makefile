@@ -39,6 +39,9 @@ gather: $(PROFILE_DIR)/.config.json
 	@sh lib/gather.sh $(PROFILE_DIR) $(DOTFILES_DIR)
 	@echo "Done."
 
+unlock:
+	@sh lib/unlock.sh
+
 env:
 	@echo "DOTFILES_PROFILE=$(DOTFILES_PROFILE)"
 	@echo "DOTFILES_PLATFORM=$(DOTFILES_PLATFORM)"

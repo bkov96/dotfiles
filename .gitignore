@@ -1,4 +1,5 @@
 .config.json
+.bw_session
 
 # General
 .DS_Store

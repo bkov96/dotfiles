@@ -5,8 +5,22 @@ PROFILE_DIR="$1"
 DOTFILES_DIR="$2"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-# Export env vars from config for envsubst
-eval "$(jq -r '.env // {} | to_entries[] | "export \(.key)=\(.value | @sh)"' "$PROFILE_DIR/.config.json")"
+# shellcheck source=/dev/null
+. "$(dirname "$0")/resolve.sh"
+
+BW_ITEM="dotfiles/$DOTFILES_PROFILE/$DOTFILES_PLATFORM"
+
+if has_bw_refs "$PROFILE_DIR/.config.json"; then
+  ensure_bw_session
+  fetch_bw_item "$BW_ITEM"
+fi
+
+# Export resolved env vars for envsubst
+for key in $(jq -r '.env // {} | keys[]' "$PROFILE_DIR/.config.json"); do
+  raw=$(jq -r --arg k "$key" '.env[$k]' "$PROFILE_DIR/.config.json")
+  value=$(resolve_value "$raw")
+  export "$key=$value"
+done
 
 # Build envsubst allowlist from config env keys only
 ENVSUBST_VARS=$(jq -r '.env // {} | keys[] | "$" + .' "$PROFILE_DIR/.config.json" | tr '\n' ' ')

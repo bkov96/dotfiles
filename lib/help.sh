@@ -16,6 +16,7 @@ echo "  capture   Capture installed packages back into the repository (e.g Brewf
 echo ""
 echo "  link      Render templates and symlink dotfiles into the machine"
 echo "  gather    Gather rendered dotfiles from the machine back into repository templates"
+echo "  unlock    Unlock Bitwarden vault for bw:// secret resolution"
 echo ""
 echo "  format    Auto-format all .sh and .json files in the repository"
 echo "  verify    Run shellcheck and format checks on all scripts and JSON files in the repository"

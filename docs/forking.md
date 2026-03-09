@@ -57,7 +57,9 @@ profiles/<profile>/<platform>/
 }
 ```
 
-**`dotfiles/`** — Plain files (e.g. `.zshrc`) are symlinked into the destination. Files ending in `.tmpl` (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using values from the `"env"` section of `.config.json` and written as copies (without the `.tmpl` suffix).
+Keep values empty in the example. Your `init.sh` can populate them — either as plain strings or as `bw://` references for Bitwarden-backed secrets (see the `work/mac` profile for an example).
+
+**`dotfiles/`** — Plain files (e.g. `.zshrc`) are symlinked into the destination. Files ending in `.tmpl` (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using values from the `"env"` section of `.config.json` and written as copies (without the `.tmpl` suffix). Values can be plain strings or `bw://` references resolved at link time.
 
 **`setup/` scripts** — `init.sh` runs first: install prerequisites and copy example files to their live versions. `install.sh` installs packages. `capture.sh` snapshots installed state back into the repo.
 

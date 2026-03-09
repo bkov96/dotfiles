@@ -1,5 +1,6 @@
 tap "azure/kubelogin"
 brew "azure-cli"
+brew "bitwarden-cli"
 brew "chezmoi"
 brew "chmlib"
 brew "dotnet@8"

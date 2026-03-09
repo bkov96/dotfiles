@@ -4,11 +4,23 @@ set -e
 PROFILE_DIR="$1"
 DOTFILES_DIR="$2"
 
-# Export env vars from config
-eval "$(jq -r '.env // {} | to_entries[] | "export \(.key)=\(.value | @sh)"' "$PROFILE_DIR/.config.json")"
+# shellcheck source=/dev/null
+. "$(dirname "$0")/resolve.sh"
 
-# Get variable names for placeholder replacement
+BW_ITEM="dotfiles/$DOTFILES_PROFILE/$DOTFILES_PLATFORM"
+
+if has_bw_refs "$PROFILE_DIR/.config.json"; then
+  ensure_bw_session
+  fetch_bw_item "$BW_ITEM"
+fi
+
+# Export resolved env vars and collect names for placeholder replacement
 var_names=$(jq -r '.env // {} | keys[]' "$PROFILE_DIR/.config.json")
+for key in $var_names; do
+  raw=$(jq -r --arg k "$key" '.env[$k]' "$PROFILE_DIR/.config.json")
+  value=$(resolve_value "$raw")
+  export "$key=$value"
+done
 
 for src in "$DOTFILES_DIR"/.*; do
   filename=$(basename "$src")

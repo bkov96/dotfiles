@@ -91,6 +91,40 @@ echo "--- Template diff ---"
 diff "$TMPL_BAK" "$TMPL" || true
 
 # ---------------------------------------------------------------
+echo "--- Test: bw:// auto-unlock on expired session ---"
+
+# Restore template and write a config with bw:// references
+cp "$TMPL_BAK" "$TMPL"
+printf '{"env":{"TEST_NAME":"bw://TEST_NAME"},"paths":{".testconfig.tmpl":"~/.testconfig"}}\n' >"$PROFILE_DIR/.config.json"
+unset BW_SESSION
+rm -f .bw_session
+
+# Create a mock bw that simulates a locked vault and fails to unlock
+MOCK_BIN="$(mktemp -d)"
+cat >"$MOCK_BIN/bw" <<'MOCK'
+#!/bin/sh
+if [ "$1" = "status" ]; then printf '{"status":"locked"}'; exit 0; fi
+echo "mock bw: unlock failed" >&2
+exit 1
+MOCK
+chmod +x "$MOCK_BIN/bw"
+OLD_PATH="$PATH"
+export PATH="$MOCK_BIN:$PATH"
+
+output=$(sh lib/link.sh "$PROFILE_DIR" "$DOTFILES_DIR" 2>&1 || true)
+if echo "$output" | grep -q "re-authenticating"; then
+  ok "bw: expired session triggers re-authentication"
+else
+  ko "bw: expired session triggers re-authentication"
+fi
+
+export PATH="$OLD_PATH"
+rm -rf "$MOCK_BIN"
+
+# Restore config from example for cleanup
+cp "$PROFILE_DIR/.config.example.json" "$PROFILE_DIR/.config.json"
+
+# ---------------------------------------------------------------
 # Cleanup
 cp "$TMPL_BAK" "$TMPL"
 rm -f "$TMPL_BAK"

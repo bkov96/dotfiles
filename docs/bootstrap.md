@@ -7,8 +7,8 @@ You only need two things to get started: `git` and `make`. On macOS, both ship w
 - [1. Install Xcode Command Line Tools](#1-install-xcode-command-line-tools)
 - [2. Clone this repo](#2-clone-this-repo)
 - [3. Initialize the profile](#3-initialize-the-profile)
-- [4. Fill in your config](#4-fill-in-your-config)
-- [5. Install dependencies](#5-install-dependencies)
+- [4. Install dependencies](#4-install-dependencies)
+- [5. Unlock Bitwarden](#5-unlock-bitwarden)
 - [6. Link dotfiles](#6-link-dotfiles)
 
 ## 1. Install Xcode Command Line Tools
@@ -39,28 +39,34 @@ Then run:
 make init
 ```
 
-This installs Homebrew (if missing), then creates `.config.json` from the example file. If Xcode CLT or Homebrew need a manual step to complete, the script will tell you — just re-run `make init` afterwards.
+This installs Homebrew (if missing), then creates `.config.json` from the example with `bw://` references pre-filled. If Xcode CLT or Homebrew need a manual step to complete, the script will tell you — just re-run `make init` afterwards.
 
-## 4. Fill in your config
-
-Open `profiles/<profile>/<platform>/.config.json` (e.g. `profiles/work/mac/.config.json`) and set your values in the `"env"` section:
-
-```json
-{
-  "env": {
-    "GIT_CONFIG_NAME": "Jane Doe",
-    "GIT_CONFIG_EMAIL": "jane@example.com"
-  }
-}
-```
-
-## 5. Install dependencies
+## 4. Install dependencies
 
 ```sh
 make install
 ```
 
-Runs `brew bundle` to install all packages from the Brewfile.
+Runs `brew bundle` to install all packages from the Brewfile, including the Bitwarden CLI.
+
+## 5. Unlock Bitwarden
+
+```sh
+make unlock
+```
+
+This logs in to Bitwarden (if needed) and unlocks the vault, saving the session to `.bw_session` (gitignored). You only need to run this once per shell session.
+
+For non-interactive environments (e.g. servers), set `BW_CLIENTID` and `BW_CLIENTSECRET` before running — `make unlock` will use API key auth automatically:
+
+```sh
+export BW_CLIENTID=user.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+export BW_CLIENTSECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+make unlock
+```
+
+If you prefer not to use Bitwarden, set plain values directly in the `"env"` section of `.config.json` instead.
 
 ## 6. Link dotfiles
 

@@ -23,11 +23,11 @@ else
   echo "  Homebrew already installed"
 fi
 
-# Copy .config.example.json -> .config.json if not present
+# Copy .config.example.json -> .config.json with bw:// references if not present
 if [ -f "$PROFILE_DIR/.config.example.json" ] && [ ! -f "$PROFILE_DIR/.config.json" ]; then
-  cp "$PROFILE_DIR/.config.example.json" "$PROFILE_DIR/.config.json"
-  echo "  Created $PROFILE_DIR/.config.json from .config.example.json"
-  echo "  ⚠️  Fill in your values in the \"env\" section of $PROFILE_DIR/.config.json before running 'make link'"
+  jq '.env |= with_entries(.value = "bw://\(.key)")' "$PROFILE_DIR/.config.example.json" >"$PROFILE_DIR/.config.json"
+  echo "  Created $PROFILE_DIR/.config.json with bw:// references"
+  echo "  ⚠️  Run 'make unlock' before 'make link' to resolve secrets from Bitwarden"
 else
   echo "  $PROFILE_DIR/.config.json already exists or no example found, skipping"
 fi

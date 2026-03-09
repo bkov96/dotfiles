@@ -11,6 +11,7 @@ Personal machine configuration, organized by profile and platform. Dotfiles are 
 - [Commands](#-commands)
 - [Bootstrap a new machine](#-bootstrap-a-new-machine)
 - [Customizing paths](#️-customizing-paths)
+- [Bitwarden secrets](#-using-bitwarden-for-secrets)
 - [Forking](#-forking)
 
 ## 📁 Structure
@@ -41,24 +42,23 @@ Currently available profiles: `work/mac`, `homelab/mac`, `github/ci` (CI only).
 
 ## 📦 Commands
 
-Commands come in pairs — one direction pushes from the repo to the machine, the other pulls state back.
-
-| Command   | Description                                                                                          |
-| --------- | ---------------------------------------------------------------------------------------------------- |
-| `init`    | Set up a new machine: install platform dependencies and create `.config.json` from example           |
-|           |                                                                                                      |
-| `install` | Install all profile packages (e.g. `brew bundle`)                                                    |
-| `capture` | Capture installed packages back into the repository (e.g. `Brewfile`)                                |
-|           |                                                                                                      |
-| `link`    | Render templates and symlink dotfiles into the machine                                               |
-| `gather`  | Gather rendered dotfiles from the machine back into repository templates                             |
-|           |                                                                                                      |
-| `format`  | Auto-format all `.sh` and `.json` files in the repository                                            |
-| `verify`  | Run shellcheck and format checks on all scripts and JSON files                                       |
-| `test`    | Run end-to-end tests for `link` and `gather` against the active profile's test fixtures              |
-| `env`     | Print current `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` values                                      |
-| `where`   | Print the absolute repository path                                                                   |
-| `help`    | Show the help message                                                                                |
+| Command   | Description                                                                                |
+| --------- | ------------------------------------------------------------------------------------------ |
+| `init`    | Set up a new machine: install platform dependencies and create `.config.json` from example |
+|           |                                                                                            |
+| `install` | Install all profile packages (e.g. `brew bundle`)                                          |
+| `capture` | Capture installed packages back into the repository (e.g. `Brewfile`)                      |
+|           |                                                                                            |
+| `link`    | Render templates and symlink dotfiles into the machine                                     |
+| `gather`  | Gather rendered dotfiles from the machine back into repository templates                   |
+| `unlock`  | Unlock Bitwarden vault for `bw://` secret resolution                                       |
+|           |                                                                                            |
+| `format`  | Auto-format all `.sh` and `.json` files in the repository                                  |
+| `verify`  | Run shellcheck and format checks on all scripts and JSON files                             |
+| `test`    | Run end-to-end tests for `link` and `gather` against the active profile's test fixtures    |
+| `env`     | Print current `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` values                            |
+| `where`   | Print the absolute repository path                                                         |
+| `help`    | Show the help message                                                                      |
 
 All commands accept `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` overrides:
 
@@ -98,6 +98,42 @@ Then override only the paths you care about — everything else is still auto-di
 ```
 
 `.config.json` is gitignored and never committed.
+
+---
+
+## 🔐 Using Bitwarden for secrets
+
+Instead of plain strings, env values in `.config.json` can reference secrets stored in Bitwarden using a `bw://` prefix:
+
+```json
+{
+  "env": {
+    "GIT_CONFIG_NAME": "bw://GIT_CONFIG_NAME",
+    "GIT_CONFIG_EMAIL": "bw://GIT_CONFIG_EMAIL",
+    "EDITOR": "vim"
+  }
+}
+```
+
+Plain values and `bw://` references can be mixed freely.
+
+### Bitwarden item convention
+
+Create one Bitwarden item named `dotfiles/<profile>/<platform>` (e.g. a Note called `dotfiles/work/mac`) with each variable as a **custom field**. The item name is derived automatically from `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` — the `bw://` reference only needs the field name.
+
+### Unlocking the vault
+
+Run once per shell session before `make link`:
+
+```sh
+make unlock
+```
+
+This handles login (if not already logged in) and unlocks the vault, saving the session to `.bw_session` (gitignored). Subsequent `make link` and `make gather` calls read it automatically.
+
+For non-interactive environments (servers, CI), set `BW_CLIENTID` and `BW_CLIENTSECRET` before running — `make unlock` will use API key auth automatically. You can generate an API key in the Bitwarden web vault under **Settings → Security → Keys**.
+
+If `bw://` references are found but no session exists, both commands fail with a clear error.
 
 ---
 
