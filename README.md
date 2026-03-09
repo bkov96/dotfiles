@@ -13,6 +13,7 @@ Personal machine configuration, organized by profile and platform. Dotfiles are 
 - [Customizing paths](#️-customizing-paths)
 - [Bitwarden secrets](#-using-bitwarden-for-secrets)
 - [Forking](#-forking)
+- [What's next](#-whats-next)
 
 ## 📁 Structure
 
@@ -140,3 +141,9 @@ For non-interactive environments (servers, CI), set `BW_CLIENTID` and `BW_CLIENT
 ## 🍴 Forking
 
 Want to use this structure for your own machines? See [docs/forking.md](docs/forking.md).
+
+---
+
+## 🔭 What's next
+
+See [docs/homelab.md](docs/homelab.md) for guidelines on expanding this repo into a homelab setup with multi-user environments and Docker-based services.
