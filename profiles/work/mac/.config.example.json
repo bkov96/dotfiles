@@ -1,4 +1,8 @@
 {
+  "env": {
+    "GIT_CONFIG_EMAIL": "",
+    "GIT_CONFIG_NAME": ""
+  },
   "paths": {
     ".gitconfig.tmpl": "~/.gitconfig",
     ".zshrc": "~/.zshrc"

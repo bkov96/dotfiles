@@ -35,8 +35,7 @@ Delete or keep the existing profiles under `profiles/`. Create your own:
 
 ```
 profiles/<profile>/<platform>/
-  .env.example          # declare variables your templates need
-  .config.example.json  # path overrides for individual dotfiles
+  .config.example.json  # env vars and path overrides for individual dotfiles
   dotfiles/             # your config files
   setup/
     init.sh             # bootstrap: install package manager, copy example files
@@ -44,24 +43,21 @@ profiles/<profile>/<platform>/
     capture.sh          # snapshot installed state back to the repo
 ```
 
-**`.env.example`** — One `VAR=` per line, no values committed. Users fill in a local `.env` that is gitignored:
-
-```sh
-GIT_CONFIG_NAME=
-GIT_CONFIG_EMAIL=
-```
-
-**`.config.example.json`** — Maps dotfile names to target paths. Files not listed default to `$HOME`. Can be an empty `{"paths": {}}` if all files go to `$HOME`:
+**`.config.example.json`** — Declares template variables and maps dotfile names to target paths. Files not listed in `paths` default to `$HOME`. The `env` section can be omitted if no templates are used:
 
 ```json
 {
+  "env": {
+    "GIT_CONFIG_NAME": "",
+    "GIT_CONFIG_EMAIL": ""
+  },
   "paths": {
     ".gitconfig.tmpl": "~/.gitconfig"
   }
 }
 ```
 
-**`dotfiles/`** — Plain files (e.g. `.zshrc`) are symlinked into the destination. Files ending in `.tmpl` (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using values from `.env` and written as copies (without the `.tmpl` suffix).
+**`dotfiles/`** — Plain files (e.g. `.zshrc`) are symlinked into the destination. Files ending in `.tmpl` (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using values from the `"env"` section of `.config.json` and written as copies (without the `.tmpl` suffix).
 
 **`setup/` scripts** — `init.sh` runs first: install prerequisites and copy example files to their live versions. `install.sh` installs packages. `capture.sh` snapshots installed state back into the repo.
 
@@ -91,7 +87,7 @@ env:
   DOTFILES_PLATFORM: ci
 ```
 
-You can keep the `github/ci` profile as a minimal test harness (it has its own `.env.example` with safe test values), or replace it with your own CI profile. If your templates use variables beyond `GIT_CONFIG_NAME` / `GIT_CONFIG_EMAIL`, make sure they're declared in the CI profile's `.env.example`.
+You can keep the `github/ci` profile as a minimal test harness (it has its own `.config.example.json` with safe test values), or replace it with your own CI profile. If your templates use variables beyond `GIT_CONFIG_NAME` / `GIT_CONFIG_EMAIL`, make sure they're declared in the CI profile's `.config.example.json` `"env"` section.
 
 ## 6. Bootstrap
 

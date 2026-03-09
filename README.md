@@ -21,10 +21,9 @@ profiles/
     <platform>/
       dotfiles/             # config files to be linked/rendered into $HOME
       setup/
-        init.sh             # sets up the platform and creates .env / .config.json
+        init.sh             # sets up the platform and creates .config.json from example
         install.sh          # installs all dependencies (e.g. brew bundle)
-      .env.example          # required environment variables (copy to .env and fill in)
-      .config.example.json  # optional path overrides (copy to .config.json to customize)
+      .config.example.json  # env vars and path overrides (copy to .config.json and fill in)
       ...                   # platform-specific files (e.g. Brewfile on macOS)
 ```
 
@@ -33,7 +32,7 @@ Currently available profiles: `work/mac`, `homelab/mac`, `github/ci` (CI only).
 ### How it works
 
 - **Plain dotfiles** (e.g. `.zshrc`) are symlinked directly into `$HOME`
-- **Template files** (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using variables from `.env`, and written to `$HOME` (without the `.tmpl` suffix)
+- **Template files** (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using variables from the `env` section of `.config.json`, and written to `$HOME` (without the `.tmpl` suffix)
 - By default all files land in `$HOME`. Override individual destinations via `.config.json`
 
 > 💡 **No reverse sync needed for symlinked files.** Because plain dotfiles are symlinks, any edits you make directly on the machine (e.g. tweaking `.zshrc`) are instantly reflected in this repo — just `git add` and commit as usual. Template files (`.tmpl`) are rendered as copies, so edits to e.g. `~/.gitconfig` on the machine won't sync back automatically — use `make gather` to pull them back into the repo.
@@ -46,7 +45,7 @@ Commands come in pairs — one direction pushes from the repo to the machine, th
 
 | Command   | Description                                                                                          |
 | --------- | ---------------------------------------------------------------------------------------------------- |
-| `init`    | Set up a new machine: install platform dependencies and create `.env` / `.config.json` from examples |
+| `init`    | Set up a new machine: install platform dependencies and create `.config.json` from example           |
 |           |                                                                                                      |
 | `install` | Install all profile packages (e.g. `brew bundle`)                                                    |
 | `capture` | Capture installed packages back into the repository (e.g. `Brewfile`)                                |
@@ -87,6 +86,10 @@ Then override only the paths you care about — everything else is still auto-di
 
 ```json
 {
+  "env": {
+    "GIT_CONFIG_NAME": "Jane Doe",
+    "GIT_CONFIG_EMAIL": "jane@example.com"
+  },
   "paths": {
     ".gitconfig.tmpl": "~/.gitconfig",
     ".zshrc": "/some/other/path/.zshrc"
@@ -94,7 +97,7 @@ Then override only the paths you care about — everything else is still auto-di
 }
 ```
 
-Both `.env` and `.config.json` are gitignored and never committed.
+`.config.json` is gitignored and never committed.
 
 ---
 

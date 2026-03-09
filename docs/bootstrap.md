@@ -7,7 +7,7 @@ You only need two things to get started: `git` and `make`. On macOS, both ship w
 - [1. Install Xcode Command Line Tools](#1-install-xcode-command-line-tools)
 - [2. Clone this repo](#2-clone-this-repo)
 - [3. Initialize the profile](#3-initialize-the-profile)
-- [4. Fill in your .env](#4-fill-in-your-env)
+- [4. Fill in your config](#4-fill-in-your-config)
 - [5. Install dependencies](#5-install-dependencies)
 - [6. Link dotfiles](#6-link-dotfiles)
 
@@ -39,15 +39,19 @@ Then run:
 make init
 ```
 
-This installs Homebrew (if missing), then creates `.env` and `.config.json` from the example files. If Xcode CLT or Homebrew need a manual step to complete, the script will tell you — just re-run `make init` afterwards.
+This installs Homebrew (if missing), then creates `.config.json` from the example file. If Xcode CLT or Homebrew need a manual step to complete, the script will tell you — just re-run `make init` afterwards.
 
-## 4. Fill in your `.env`
+## 4. Fill in your config
 
-Open `profiles/<profile>/<platform>/.env` (e.g. `profiles/work/mac/.env`) and set your values:
+Open `profiles/<profile>/<platform>/.config.json` (e.g. `profiles/work/mac/.config.json`) and set your values in the `"env"` section:
 
-```sh
-GIT_CONFIG_NAME=Jane Doe
-GIT_CONFIG_EMAIL=jane@example.com
+```json
+{
+  "env": {
+    "GIT_CONFIG_NAME": "Jane Doe",
+    "GIT_CONFIG_EMAIL": "jane@example.com"
+  }
+}
 ```
 
 ## 5. Install dependencies

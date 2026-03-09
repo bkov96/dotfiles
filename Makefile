@@ -29,12 +29,12 @@ capture:
 	@sh $(PROFILE_DIR)/setup/capture.sh $(PROFILE_DIR)
 	@echo "Done."
 
-link: $(PROFILE_DIR)/.env
+link: $(PROFILE_DIR)/.config.json
 	@echo "Linking dotfiles for $(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)..."
 	@sh lib/link.sh $(PROFILE_DIR) $(DOTFILES_DIR)
 	@echo "Done."
 
-gather: $(PROFILE_DIR)/.env
+gather: $(PROFILE_DIR)/.config.json
 	@echo "Gathering dotfiles for $(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)..."
 	@sh lib/gather.sh $(PROFILE_DIR) $(DOTFILES_DIR)
 	@echo "Done."
@@ -55,6 +55,6 @@ verify:
 test:
 	@sh profiles/$(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)/test.sh
 
-$(PROFILE_DIR)/.env:
-	@echo "Error: $(PROFILE_DIR)/.env not found. Run 'make init' first."
+$(PROFILE_DIR)/.config.json:
+	@echo "Error: $(PROFILE_DIR)/.config.json not found. Run 'make init' first."
 	@exit 1

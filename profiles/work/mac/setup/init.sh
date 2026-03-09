@@ -23,19 +23,11 @@ else
   echo "  Homebrew already installed"
 fi
 
-# Copy .env.example -> .env if not present
-if [ ! -f "$PROFILE_DIR/.env" ]; then
-  cp "$PROFILE_DIR/.env.example" "$PROFILE_DIR/.env"
-  echo "  Created $PROFILE_DIR/.env from .env.example"
-  echo "  ⚠️  Fill in your values in $PROFILE_DIR/.env before running 'make link'"
-else
-  echo "  $PROFILE_DIR/.env already exists, skipping"
-fi
-
 # Copy .config.example.json -> .config.json if not present
 if [ -f "$PROFILE_DIR/.config.example.json" ] && [ ! -f "$PROFILE_DIR/.config.json" ]; then
   cp "$PROFILE_DIR/.config.example.json" "$PROFILE_DIR/.config.json"
   echo "  Created $PROFILE_DIR/.config.json from .config.example.json"
+  echo "  ⚠️  Fill in your values in the \"env\" section of $PROFILE_DIR/.config.json before running 'make link'"
 else
   echo "  $PROFILE_DIR/.config.json already exists or no example found, skipping"
 fi

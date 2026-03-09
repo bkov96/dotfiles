@@ -4,12 +4,11 @@ set -e
 PROFILE_DIR="$1"
 DOTFILES_DIR="$2"
 
-set -a
-# shellcheck source=/dev/null
-. "$PROFILE_DIR/.env"
-set +a
+# Export env vars from config
+eval "$(jq -r '.env // {} | to_entries[] | "export \(.key)=\(.value | @sh)"' "$PROFILE_DIR/.config.json")"
 
-var_names=$(grep -v '^#' "$PROFILE_DIR/.env" | grep '=' | sed 's/=.*//')
+# Get variable names for placeholder replacement
+var_names=$(jq -r '.env // {} | keys[]' "$PROFILE_DIR/.config.json")
 
 for src in "$DOTFILES_DIR"/.*; do
   filename=$(basename "$src")

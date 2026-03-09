@@ -46,7 +46,6 @@ assert_has_diff() {
 }
 
 # Setup: copy example files to gitignored runtime files
-cp "$PROFILE_DIR/.env.example" "$PROFILE_DIR/.env"
 cp "$PROFILE_DIR/.config.example.json" "$PROFILE_DIR/.config.json"
 
 # Save original template
@@ -95,7 +94,6 @@ diff "$TMPL_BAK" "$TMPL" || true
 # Cleanup
 cp "$TMPL_BAK" "$TMPL"
 rm -f "$TMPL_BAK"
-rm -f "$PROFILE_DIR/.env"
 rm -f "$PROFILE_DIR/.config.json"
 rm -rf "$TEST_HOME"
 

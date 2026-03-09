@@ -1,4 +1,8 @@
 {
+  "env": {
+    "TEST_EMAIL": "test@example.com",
+    "TEST_NAME": "TestUser"
+  },
   "paths": {
     ".testconfig.tmpl": "~/.testconfig",
     ".testrc": "~/.testrc"
