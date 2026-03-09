@@ -6,6 +6,9 @@ DOTFILES_DIR="$PROFILE_DIR/dotfiles"
 
 cd "$REPO_DIR" || exit 1
 
+# shellcheck source=/dev/null
+. "$REPO_DIR/lib/log.sh"
+
 TEST_HOME="$(mktemp -d)"
 HOME="$TEST_HOME"
 export HOME
@@ -15,11 +18,11 @@ FAIL=0
 
 ok() {
   PASS=$((PASS + 1))
-  echo "PASS: $1"
+  log_ok "$1"
 }
 ko() {
   FAIL=$((FAIL + 1))
-  echo "FAIL: $1"
+  log_fail "$1"
 }
 
 assert_contains() {
@@ -54,7 +57,7 @@ TMPL_BAK="$(mktemp)"
 cp "$TMPL" "$TMPL_BAK"
 
 # ---------------------------------------------------------------
-echo "--- Test: link ---"
+log_header "Test: link"
 
 sh lib/link.sh "$PROFILE_DIR" "$DOTFILES_DIR"
 
@@ -65,7 +68,7 @@ assert_not_contains "\${TEST_EMAIL}" "$TEST_HOME/.testconfig" "link: email place
 assert_symlink "$TEST_HOME/.testrc" "link: .testrc is a symlink"
 
 # ---------------------------------------------------------------
-echo "--- Test: gather (round-trip idempotency) ---"
+log_header "Test: gather (round-trip idempotency)"
 
 sh lib/gather.sh "$PROFILE_DIR" "$DOTFILES_DIR"
 
@@ -76,7 +79,7 @@ cp "$TMPL_BAK" "$TMPL"
 sh lib/link.sh "$PROFILE_DIR" "$DOTFILES_DIR"
 
 # ---------------------------------------------------------------
-echo "--- Test: gather (modified file) ---"
+log_header "Test: gather (modified file)"
 
 echo "org=MyOrg" >>"$TEST_HOME/.testconfig"
 
@@ -87,11 +90,11 @@ assert_contains "org=MyOrg" "$TMPL" "gather: new line captured in template"
 assert_contains "\${TEST_NAME}" "$TMPL" "gather: name placeholder preserved"
 assert_contains "\${TEST_EMAIL}" "$TMPL" "gather: email placeholder preserved"
 
-echo "--- Template diff ---"
+log_header "Template diff"
 diff "$TMPL_BAK" "$TMPL" || true
 
 # ---------------------------------------------------------------
-echo "--- Test: bw:// auto-unlock on expired session ---"
+log_header "Test: bw:// auto-unlock on expired session"
 
 # Restore template and write a config with bw:// references
 cp "$TMPL_BAK" "$TMPL"
@@ -131,6 +134,10 @@ rm -f "$TMPL_BAK"
 rm -f "$PROFILE_DIR/.config.json"
 rm -rf "$TEST_HOME"
 
-echo ""
-echo "Results: $PASS passed, $FAIL failed"
+printf '\n'
+if [ "$FAIL" -eq 0 ]; then
+  printf '%s%s✅  Results: %d passed, %d failed%s\n' "$_LOG_BOLD" "$_LOG_GREEN" "$PASS" "$FAIL" "$_LOG_RESET"
+else
+  printf '%s%s❌  Results: %d passed, %d failed%s\n' "$_LOG_BOLD" "$_LOG_RED" "$PASS" "$FAIL" "$_LOG_RESET"
+fi
 [ "$FAIL" -eq 0 ]

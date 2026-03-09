@@ -2,6 +2,9 @@
 # Shared Bitwarden resolution helpers.
 # Source this file; do not execute directly.
 
+# shellcheck source=/dev/null
+. "$(dirname "$0")/log.sh"
+
 # Check if any env values use bw:// references
 has_bw_refs() {
   jq -e '.env // {} | to_entries[] | select(.value | startswith("bw://"))' "$1" >/dev/null 2>&1
@@ -25,7 +28,7 @@ ensure_bw_session() {
   fi
 
   if ! command -v bw >/dev/null 2>&1; then
-    echo "Error: bw:// references found but Bitwarden CLI (bw) is not installed. Run 'make install' first." >&2
+    log_error "bw:// references found but Bitwarden CLI (bw) is not installed. Run 'make install' first."
     exit 1
   fi
 
@@ -37,17 +40,17 @@ ensure_bw_session() {
     return
     ;;
   locked | unauthenticated)
-    echo "  Bitwarden session expired or missing, re-authenticating..." >&2
-    sh "$(dirname "$0")/unlock.sh"
+    log_info "Bitwarden session expired or missing, re-authenticating..." >&2
+    _LOG_NESTED=1 sh "$(dirname "$0")/unlock.sh"
     BW_SESSION=""
     load_bw_session
     if [ -z "$BW_SESSION" ]; then
-      echo "Error: failed to re-authenticate with Bitwarden." >&2
+      log_error "Failed to re-authenticate with Bitwarden."
       exit 1
     fi
     ;;
   *)
-    echo "Error: unexpected Bitwarden vault status '$STATUS'" >&2
+    log_error "Unexpected Bitwarden vault status '$STATUS'"
     exit 1
     ;;
   esac
@@ -57,11 +60,11 @@ ensure_bw_session() {
 fetch_bw_item() {
   bw_item="$1"
   BW_ITEM_JSON=$(bw get item "$bw_item" 2>/dev/null) || {
-    echo "Error: could not fetch Bitwarden item '$bw_item'." >&2
+    log_error "Could not fetch Bitwarden item '$bw_item'."
     exit 1
   }
   if ! printf '%s' "$BW_ITEM_JSON" | jq -e '.fields' >/dev/null 2>&1; then
-    echo "Error: Bitwarden item '$bw_item' has no custom fields. Add fields for each env var." >&2
+    log_error "Bitwarden item '$bw_item' has no custom fields. Add fields for each env var."
     exit 1
   fi
 }
@@ -74,7 +77,7 @@ resolve_value() {
     field="${val#bw://}"
     resolved=$(printf '%s' "$BW_ITEM_JSON" | jq -r --arg f "$field" '.fields[] | select(.name == $f) | .value')
     if [ -z "$resolved" ]; then
-      echo "Error: field '$field' not found in Bitwarden item" >&2
+      log_error "Field '$field' not found in Bitwarden item"
       exit 1
     fi
     printf '%s' "$resolved"

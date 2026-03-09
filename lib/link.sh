@@ -6,7 +6,11 @@ DOTFILES_DIR="$2"
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 # shellcheck source=/dev/null
+. "$(dirname "$0")/log.sh"
+# shellcheck source=/dev/null
 . "$(dirname "$0")/resolve.sh"
+
+log_header "Linking dotfiles for ${DOTFILES_PROFILE:-}/${DOTFILES_PLATFORM:-}..."
 
 BW_ITEM="dotfiles/$DOTFILES_PROFILE/$DOTFILES_PLATFORM"
 
@@ -42,11 +46,13 @@ for src in "$DOTFILES_DIR"/.*; do
 
   if echo "$filename" | grep -q '\.tmpl$'; then
     envsubst "$ENVSUBST_VARS" <"$src" >"$dest"
-    echo "  Rendered $filename -> $dest"
+    log_item "Rendered $filename → $dest"
   else
     ln -sf "$REPO_DIR/$src" "$dest"
-    echo "  Linked $filename -> $dest"
+    log_item "Linked $filename → $dest"
   fi
 
   unset custom_dest
 done
+
+log_done

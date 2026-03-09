@@ -3,33 +3,36 @@ set -e
 
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-echo "Running shellcheck on all shell scripts..."
-for script in $(find "$REPO_DIR" -name "*.sh" | sort); do
-  shellcheck "$script"
-  echo "  OK $script"
-done
-echo "All shellcheck checks passed."
+# shellcheck source=/dev/null
+. "$(dirname "$0")/log.sh"
 
-echo "Checking shell script formatting with shfmt..."
+log_header "Running shellcheck on all shell scripts..."
 for script in $(find "$REPO_DIR" -name "*.sh" | sort); do
-  shfmt -d "$script"
-  echo "  OK $script"
+  log_task "$script" shellcheck "$script"
 done
-echo "All shell scripts are properly formatted."
+log_info "All shellcheck checks passed."
 
-echo "Checking JSON file formatting with jq..."
+log_header "Checking shell script formatting with shfmt..."
+for script in $(find "$REPO_DIR" -name "*.sh" | sort); do
+  log_task "$script" shfmt -d "$script"
+done
+log_info "All shell scripts are properly formatted."
+
+log_header "Checking JSON file formatting with jq..."
 json_result=0
 for file in $(find "$REPO_DIR" -name "*.json" | sort); do
   formatted="$(jq . "$file")"
   original="$(cat "$file")"
   if [ "$formatted" != "$original" ]; then
-    echo "  FAIL $file (not formatted, run 'make format')"
+    log_fail "$file (not formatted, run 'make format')"
     json_result=1
   else
-    echo "  OK $file"
+    log_ok "$file"
   fi
 done
 if [ "$json_result" -ne 0 ]; then
   exit 1
 fi
-echo "All JSON files are properly formatted."
+log_info "All JSON files are properly formatted."
+
+log_done

@@ -5,7 +5,11 @@ PROFILE_DIR="$1"
 DOTFILES_DIR="$2"
 
 # shellcheck source=/dev/null
+. "$(dirname "$0")/log.sh"
+# shellcheck source=/dev/null
 . "$(dirname "$0")/resolve.sh"
+
+log_header "Gathering dotfiles for ${DOTFILES_PROFILE:-}/${DOTFILES_PLATFORM:-}..."
 
 BW_ITEM="dotfiles/$DOTFILES_PROFILE/$DOTFILES_PLATFORM"
 
@@ -42,7 +46,7 @@ for src in "$DOTFILES_DIR"/.*; do
   fi
 
   if [ ! -f "$dest" ]; then
-    echo "  SKIP $filename (destination not found: $dest)"
+    log_skip "$filename (destination not found: $dest)"
     unset custom_dest
     continue
   fi
@@ -61,6 +65,8 @@ for src in "$DOTFILES_DIR"/.*; do
     mv "$tmp" "$src"
   done
 
-  echo "  Gathered $dest -> $filename"
+  log_item "Gathered $dest → $filename"
   unset custom_dest
 done
+
+log_done

@@ -15,36 +15,26 @@ help:
 	@sh lib/help.sh $(DOTFILES_PROFILE) $(DOTFILES_PLATFORM)
 
 init:
-	@echo "Initializing $(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)..."
 	@sh $(PROFILE_DIR)/setup/init.sh $(PROFILE_DIR)
-	@echo "Done."
 
 install:
-	@echo "Installing dependencies for $(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)..."
 	@sh $(PROFILE_DIR)/setup/install.sh $(PROFILE_DIR)
-	@echo "Done."
 
 capture:
-	@echo "Capturing installed packages for $(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)..."
 	@sh $(PROFILE_DIR)/setup/capture.sh $(PROFILE_DIR)
-	@echo "Done."
 
 link: $(PROFILE_DIR)/.config.json
-	@echo "Linking dotfiles for $(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)..."
 	@sh lib/link.sh $(PROFILE_DIR) $(DOTFILES_DIR)
-	@echo "Done."
 
 gather: $(PROFILE_DIR)/.config.json
-	@echo "Gathering dotfiles for $(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)..."
 	@sh lib/gather.sh $(PROFILE_DIR) $(DOTFILES_DIR)
-	@echo "Done."
 
 unlock:
 	@sh lib/unlock.sh
 
 env:
-	@echo "DOTFILES_PROFILE=$(DOTFILES_PROFILE)"
-	@echo "DOTFILES_PLATFORM=$(DOTFILES_PLATFORM)"
+	@printf '   \033[36mDOTFILES_PROFILE\033[0m=%s\n' "$(DOTFILES_PROFILE)"
+	@printf '   \033[36mDOTFILES_PLATFORM\033[0m=%s\n' "$(DOTFILES_PLATFORM)"
 
 where:
 	@pwd
@@ -59,5 +49,5 @@ test:
 	@sh profiles/$(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)/test.sh
 
 $(PROFILE_DIR)/.config.json:
-	@echo "Error: $(PROFILE_DIR)/.config.json not found. Run 'make init' first."
+	@printf '   \033[1m\033[31m💥  %s/.config.json not found. Run '"'"'make init'"'"' first.\033[0m\n' "$(PROFILE_DIR)" >&2
 	@exit 1

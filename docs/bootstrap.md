@@ -49,7 +49,7 @@ make install
 
 Runs `brew bundle` to install all packages from the Brewfile, including the Bitwarden CLI.
 
-## 5. Unlock Bitwarden
+## 5. Unlock Bitwarden (optional)
 
 ```sh
 make unlock
