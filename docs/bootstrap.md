@@ -51,6 +51,10 @@ Runs `brew bundle` to install all packages from the Brewfile, including the Bitw
 
 ## 5. Unlock Bitwarden (optional)
 
+`make link` will unlock the vault automatically when it encounters `bw://` references. You can skip this step and let it prompt you during `make link`.
+
+Run this first if you want to verify vault access upfront, or to avoid an interactive prompt mid-run:
+
 ```sh
 make unlock
 ```

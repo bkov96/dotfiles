@@ -51,7 +51,7 @@ Currently available profiles: `work/mac`, `homelab/mac`, `github/ci` (CI only).
 |           |                                                                                            |
 | `link`    | Render templates and symlink dotfiles into the machine                                     |
 | `gather`  | Gather rendered dotfiles from the machine back into repository templates                   |
-| `unlock`  | Unlock Bitwarden vault for `bw://` secret resolution                                       |
+| `unlock`  | Unlock Bitwarden vault for `bw://` secret resolution (runs automatically during `link` and `gather` when needed) |
 |           |                                                                                            |
 | `format`  | Auto-format all `.sh` and `.json` files in the repository                                  |
 | `verify`  | Run shellcheck and format checks on all scripts and JSON files                             |
@@ -123,7 +123,9 @@ Create one Bitwarden item named `dotfiles/<profile>/<platform>` (e.g. a Note cal
 
 ### Unlocking the vault
 
-Run once per shell session before `make link`:
+`make link` and `make gather` automatically unlock the vault when they encounter `bw://` references and no valid session exists — you don't need to run anything beforehand.
+
+To pre-unlock (e.g. to verify vault access or avoid an interactive prompt mid-run), run:
 
 ```sh
 make unlock
@@ -132,8 +134,6 @@ make unlock
 This handles login (if not already logged in) and unlocks the vault, saving the session to `.bw_session` (gitignored). Subsequent `make link` and `make gather` calls read it automatically.
 
 For non-interactive environments (servers, CI), set `BW_CLIENTID` and `BW_CLIENTSECRET` before running — `make unlock` will use API key auth automatically. You can generate an API key in the Bitwarden web vault under **Settings → Security → Keys**.
-
-If `bw://` references are found but no session exists, both commands fail with a clear error.
 
 ---
 
