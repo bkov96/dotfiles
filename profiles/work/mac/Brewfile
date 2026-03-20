@@ -19,6 +19,7 @@ brew "wget"
 brew "azure/kubelogin/kubelogin"
 cask "apidog"
 cask "appcleaner"
+cask "bruno"
 cask "claude-code"
 cask "dbeaver-community"
 cask "fork"
@@ -38,6 +39,7 @@ cask "vlc"
 cask "warp"
 mas "Moom Classic", id: 419330170
 mas "Numbers", id: 361304891
+mas "Pages", id: 361309726
 vscode "42crunch.vscode-openapi"
 vscode "christian-kohler.npm-intellisense"
 vscode "codezombiech.gitignore"
