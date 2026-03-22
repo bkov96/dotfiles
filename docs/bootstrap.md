@@ -44,30 +44,30 @@ This installs Homebrew (if missing), then creates `.config.json` from the exampl
 ## 4. Install dependencies
 
 ```sh
-make install
+make packages-install
 ```
 
 Runs `brew bundle` to install all packages from the Brewfile, including the Bitwarden CLI.
 
 ## 5. Unlock Bitwarden (optional)
 
-`make link` will unlock the vault automatically when it encounters `bw://` references. You can skip this step and let it prompt you during `make link`.
+`dotfiles configs link` will unlock the vault automatically when it encounters `bw://` references. You can skip this step and let it prompt you during `dotfiles configs link`.
 
 Run this first if you want to verify vault access upfront, or to avoid an interactive prompt mid-run:
 
 ```sh
-make unlock
+make configs-unlock
 ```
 
 This logs in to Bitwarden (if needed) and unlocks the vault, saving the session to `.bw_session` (gitignored). You only need to run this once per shell session.
 
-For non-interactive environments (e.g. servers), set `BW_CLIENTID` and `BW_CLIENTSECRET` before running — `make unlock` will use API key auth automatically:
+For non-interactive environments (e.g. servers), set `BW_CLIENTID` and `BW_CLIENTSECRET` before running — `make configs-unlock` will use API key auth automatically:
 
 ```sh
 export BW_CLIENTID=user.xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 export BW_CLIENTSECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-make unlock
+make configs-unlock
 ```
 
 If you prefer not to use Bitwarden, set plain values directly in the `"env"` section of `.config.json` instead.
@@ -75,16 +75,16 @@ If you prefer not to use Bitwarden, set plain values directly in the `"env"` sec
 ## 6. Link dotfiles
 
 ```sh
-make link
+make configs-link
 ```
 
 That's it — your dotfiles are live. Your `.zshrc` now exports `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` automatically, so you won't need to export them manually in future sessions.
 
-> After `make link`, a `dotfiles` shell function is available in every new terminal. You can use it from anywhere instead of navigating to the repo:
+> After `make configs-link`, a `dotfiles` shell function is available in every new terminal. You can use it from anywhere instead of navigating to the repo:
 
 > ```sh
-> dotfiles link
-> dotfiles gather DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
+> dotfiles configs link
+> dotfiles configs gather DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
 > ```
 
 ---

@@ -41,6 +41,7 @@ profiles/<profile>/<platform>/
     init.sh             # bootstrap: install package manager, copy example files
     install.sh          # install dependencies (e.g. brew bundle)
     capture.sh          # snapshot installed state back to the repo
+    upgrade.sh          # upgrade all packages (e.g. brew upgrade)
 ```
 
 **`.config.example.json`** — Declares template variables and maps dotfile names to target paths. Files not listed in `paths` default to `$HOME`. The `env` section can be omitted if no templates are used:
@@ -61,7 +62,7 @@ Keep values empty in the example. Your `init.sh` can populate them — either as
 
 **`dotfiles/`** — Plain files (e.g. `.zshrc`) are symlinked into the destination. Files ending in `.tmpl` (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using values from the `"env"` section of `.config.json` and written as copies (without the `.tmpl` suffix). Values can be plain strings or `bw://` references resolved at link time.
 
-**`setup/` scripts** — `init.sh` runs first: install prerequisites and copy example files to their live versions. `install.sh` installs packages. `capture.sh` snapshots installed state back into the repo.
+**`setup/` scripts** — `init.sh` runs first: install prerequisites and copy example files to their live versions. `install.sh` installs packages. `capture.sh` snapshots installed state back into the repo. `upgrade.sh` upgrades all installed packages.
 
 See `profiles/work/mac/` for a working example.
 
@@ -76,7 +77,7 @@ export DOTFILES_PLATFORM=<platform>
 make init
 ```
 
-After `make link`, your `.zshrc` is live and exports the vars automatically for every subsequent session.
+After `make configs-link`, your `.zshrc` is live and exports the vars automatically for every subsequent session.
 
 ## 5. Update GitHub Actions
 

@@ -17,36 +17,42 @@ help:
 init:
 	@sh $(PROFILE_DIR)/setup/init.sh $(PROFILE_DIR)
 
-install:
+packages-install:
 	@sh $(PROFILE_DIR)/setup/install.sh $(PROFILE_DIR)
 
-capture:
+packages-capture:
 	@sh $(PROFILE_DIR)/setup/capture.sh $(PROFILE_DIR)
 
-link: $(PROFILE_DIR)/.config.json
+packages-upgrade:
+	@sh $(PROFILE_DIR)/setup/upgrade.sh $(PROFILE_DIR)
+
+configs-link: $(PROFILE_DIR)/.config.json
 	@sh lib/link.sh $(PROFILE_DIR) $(DOTFILES_DIR)
 
-gather: $(PROFILE_DIR)/.config.json
+configs-gather: $(PROFILE_DIR)/.config.json
 	@sh lib/gather.sh $(PROFILE_DIR) $(DOTFILES_DIR)
 
-unlock:
+configs-unlock:
 	@sh lib/unlock.sh
+
+scripts-format:
+	@sh lib/format.sh
+
+scripts-verify:
+	@sh lib/verify.sh
+
+scripts-test:
+	@sh profiles/$(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)/test.sh
 
 env:
 	@printf '   \033[36mDOTFILES_PROFILE\033[0m=%s\n' "$(DOTFILES_PROFILE)"
 	@printf '   \033[36mDOTFILES_PLATFORM\033[0m=%s\n' "$(DOTFILES_PLATFORM)"
 
-where:
+repo-where:
 	@pwd
 
-format:
-	@sh lib/format.sh
-
-verify:
-	@sh lib/verify.sh
-
-test:
-	@sh profiles/$(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)/test.sh
+repo-diff:
+	@git diff
 
 $(PROFILE_DIR)/.config.json:
 	@printf '   \033[1m\033[31m💥  %s/.config.json not found. Run '"'"'make init'"'"' first.\033[0m\n' "$(PROFILE_DIR)" >&2

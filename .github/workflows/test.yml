@@ -21,4 +21,4 @@ jobs:
       - name: Install tools
         run: sudo apt-get install -y jq gettext-base
       - name: Run tests
-        run: make test
+        run: make scripts-test

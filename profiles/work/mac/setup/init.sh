@@ -32,7 +32,7 @@ fi
 if [ -f "$PROFILE_DIR/.config.example.json" ] && [ ! -f "$PROFILE_DIR/.config.json" ]; then
   jq '.env |= with_entries(.value = "bw://\(.key)")' "$PROFILE_DIR/.config.example.json" >"$PROFILE_DIR/.config.json"
   log_ok "Created $PROFILE_DIR/.config.json with bw:// references"
-  log_warn "Run 'make unlock' before 'make link' to resolve secrets from Bitwarden"
+  log_warn "Run 'dotfiles configs unlock' before 'dotfiles configs link' to resolve secrets from Bitwarden"
 else
   log_ok "$PROFILE_DIR/.config.json already exists or no example found, skipping"
 fi

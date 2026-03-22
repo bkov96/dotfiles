@@ -19,4 +19,4 @@ jobs:
       - name: Install tools
         run: sudo apt-get install -y shellcheck shfmt
       - name: Run verify
-        run: make verify
+        run: make scripts-verify

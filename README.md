@@ -25,6 +25,8 @@ profiles/
       setup/
         init.sh             # sets up the platform and creates .config.json from example
         install.sh          # installs all dependencies (e.g. brew bundle)
+        capture.sh          # captures installed packages back to the repo
+        upgrade.sh          # upgrades all packages (e.g. brew upgrade)
       .config.example.json  # env vars and path overrides (copy to .config.json and fill in)
       ...                   # platform-specific files (e.g. Brewfile on macOS)
 ```
@@ -37,34 +39,58 @@ Currently available profiles: `work/mac`, `homelab/mac`, `github/ci` (CI only).
 - **Template files** (e.g. `.gitconfig.tmpl`) are rendered with `envsubst` using variables from the `env` section of `.config.json`, and written to `$HOME` (without the `.tmpl` suffix)
 - By default all files land in `$HOME`. Override individual destinations via `.config.json`
 
-> 💡 **No reverse sync needed for symlinked files.** Because plain dotfiles are symlinks, any edits you make directly on the machine (e.g. tweaking `.zshrc`) are instantly reflected in this repo — just `git add` and commit as usual. Template files (`.tmpl`) are rendered as copies, so edits to e.g. `~/.gitconfig` on the machine won't sync back automatically — use `make gather` to pull them back into the repo.
+> 💡 **No reverse sync needed for symlinked files.** Because plain dotfiles are symlinks, any edits you make directly on the machine (e.g. tweaking `.zshrc`) are instantly reflected in this repo — just `git add` and commit as usual. Template files (`.tmpl`) are rendered as copies, so edits to e.g. `~/.gitconfig` on the machine won't sync back automatically — use `dotfiles configs gather` to pull them back into the repo.
 
 ---
 
 ## 📦 Commands
 
-| Command   | Description                                                                                |
-| --------- | ------------------------------------------------------------------------------------------ |
-| `init`    | Set up a new machine: install platform dependencies and create `.config.json` from example |
-|           |                                                                                            |
-| `install` | Install all profile packages (e.g. `brew bundle`)                                          |
-| `capture` | Capture installed packages back into the repository (e.g. `Brewfile`)                      |
-|           |                                                                                            |
-| `link`    | Render templates and symlink dotfiles into the machine                                     |
-| `gather`  | Gather rendered dotfiles from the machine back into repository templates                   |
-| `unlock`  | Unlock Bitwarden vault for `bw://` secret resolution (runs automatically during `link` and `gather` when needed) |
-|           |                                                                                            |
-| `format`  | Auto-format all `.sh` and `.json` files in the repository                                  |
-| `verify`  | Run shellcheck and format checks on all scripts and JSON files                             |
-| `test`    | Run end-to-end tests for `link` and `gather` against the active profile's test fixtures    |
-| `env`     | Print current `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` values                            |
-| `where`   | Print the absolute repository path                                                         |
-| `help`    | Show the help message                                                                      |
+Commands are organized into groups. Use `dotfiles <group> <action>`:
+
+### Packages
+
+| Command              | Description                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `packages install`   | Install all profile packages (e.g. `brew bundle`)              |
+| `packages capture`   | Capture installed packages back into the repository            |
+| `packages upgrade`   | Upgrade all profile packages (e.g. `brew upgrade`)             |
+
+### Configs
+
+| Command              | Description                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `configs link`       | Render templates and symlink dotfiles into the machine         |
+| `configs gather`     | Gather rendered dotfiles from the machine back into templates  |
+| `configs unlock`     | Unlock Bitwarden vault for `bw://` secret resolution (runs automatically during `configs link` and `configs gather` when needed) |
+
+### Scripts
+
+| Command              | Description                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `scripts format`     | Auto-format all `.sh` and `.json` files in the repository      |
+| `scripts verify`     | Run shellcheck and format checks on all scripts and JSON files |
+| `scripts test`       | Run end-to-end tests for `link` and `gather`                   |
+
+### Repo
+
+| Command              | Description                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `repo where`         | Print the absolute repository path                             |
+| `repo cd`            | cd into the repository directory                               |
+| `repo diff`          | Print git diff for the repository                              |
+
+### Standalone
+
+| Command              | Description                                                    |
+| -------------------- | -------------------------------------------------------------- |
+| `init`               | Set up a new machine: install dependencies and create `.config.json` |
+| `env`                | Print current `DOTFILES_PROFILE` and `DOTFILES_PLATFORM`      |
+| `help`               | Show the help message                                          |
 
 All commands accept `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` overrides:
 
 ```sh
-make capture DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
+dotfiles packages capture DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
 ```
 
 ---
@@ -124,17 +150,17 @@ Create one Bitwarden item named `dotfiles/<profile>/<platform>` (e.g. a Note cal
 
 ### Unlocking the vault
 
-`make link` and `make gather` automatically unlock the vault when they encounter `bw://` references and no valid session exists — you don't need to run anything beforehand.
+`dotfiles configs link` and `dotfiles configs gather` automatically unlock the vault when they encounter `bw://` references and no valid session exists — you don't need to run anything beforehand.
 
 To pre-unlock (e.g. to verify vault access or avoid an interactive prompt mid-run), run:
 
 ```sh
-make unlock
+dotfiles configs unlock
 ```
 
-This handles login (if not already logged in) and unlocks the vault, saving the session to `.bw_session` (gitignored). Subsequent `make link` and `make gather` calls read it automatically.
+This handles login (if not already logged in) and unlocks the vault, saving the session to `.bw_session` (gitignored). Subsequent `dotfiles configs link` and `dotfiles configs gather` calls read it automatically.
 
-For non-interactive environments (servers, CI), set `BW_CLIENTID` and `BW_CLIENTSECRET` before running — `make unlock` will use API key auth automatically. You can generate an API key in the Bitwarden web vault under **Settings → Security → Keys**.
+For non-interactive environments (servers, CI), set `BW_CLIENTID` and `BW_CLIENTSECRET` before running — `dotfiles configs unlock` will use API key auth automatically. You can generate an API key in the Bitwarden web vault under **Settings → Security → Keys**.
 
 ---
 
