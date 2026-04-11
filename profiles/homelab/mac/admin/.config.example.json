@@ -1,7 +1,13 @@
 {
   "env": {
+    "GIT_CONFIG_EMAIL": "",
+    "GIT_CONFIG_NAME": "",
     "OPS_USER": "",
     "OPS_PASSWORD": "",
     "SSH_PUBLIC_KEY_B64": ""
+  },
+  "paths": {
+    ".gitconfig.tmpl": "~/.gitconfig",
+    ".zshrc": "~/.zshrc"
   }
 }
