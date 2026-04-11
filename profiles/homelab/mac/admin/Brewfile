@@ -1,0 +1,2 @@
+brew "bitwarden-cli"
+brew "jq"

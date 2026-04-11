@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+
+REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+
+# shellcheck source=/dev/null
+. "$REPO_DIR/lib/log.sh"
+
+log_header "Pre-push: scanning for secrets with gitleaks..."
+log_task "gitleaks" gitleaks dir "$REPO_DIR" --no-banner -v
+log_info "No secrets detected."

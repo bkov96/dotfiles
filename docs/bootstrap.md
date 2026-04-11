@@ -89,4 +89,10 @@ That's it — your dotfiles are live. Your `.zshrc` now exports `DOTFILES_PROFIL
 
 ---
 
+## Homelab bootstrap
+
+For homelab (Mac Mini) setup, see the dedicated runbook at [profiles/homelab/mac/README.md](../profiles/homelab/mac/README.md).
+
+---
+
 Back to [README](../README.md)

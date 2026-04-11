@@ -1,6 +1,9 @@
 .config.json
 .bw_session
 
+# Internal planning docs (not for public consumption)
+docs/superpowers/
+
 # General
 .DS_Store
 __MACOSX/

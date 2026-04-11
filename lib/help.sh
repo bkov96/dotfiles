@@ -5,6 +5,7 @@
 
 DOTFILES_PROFILE="$1"
 DOTFILES_PLATFORM="$2"
+DOTFILES_USER="$3"
 
 printf '\n'
 printf '%sdotfiles%s  — a personal machine configuration manager\n' "$_LOG_BOLD" "$_LOG_RESET"
@@ -37,10 +38,14 @@ printf '  %sinit%s                Set up a new machine (install dependencies, cr
 printf '  %senv%s                 Print current DOTFILES_PROFILE and DOTFILES_PLATFORM values\n' "$_LOG_CYAN" "$_LOG_RESET"
 printf '  %shelp%s                Show this help message\n' "$_LOG_CYAN" "$_LOG_RESET"
 printf '\n'
-printf '%sCurrent:%s  DOTFILES_PROFILE=%s%s%s  DOTFILES_PLATFORM=%s%s%s\n' \
+printf '%sCurrent:%s  DOTFILES_PROFILE=%s%s%s  DOTFILES_PLATFORM=%s%s%s' \
   "$_LOG_BOLD" "$_LOG_RESET" \
   "$_LOG_GREEN" "$DOTFILES_PROFILE" "$_LOG_RESET" \
   "$_LOG_GREEN" "$DOTFILES_PLATFORM" "$_LOG_RESET"
-printf '%sExample:%s  dotfiles configs link DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac\n' \
+if [ -n "$DOTFILES_USER" ]; then
+  printf '  DOTFILES_USER=%s%s%s' "$_LOG_GREEN" "$DOTFILES_USER" "$_LOG_RESET"
+fi
+printf '\n'
+printf '%sExample:%s  dotfiles configs link DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac DOTFILES_USER=ops\n' \
   "$_LOG_DIM" "$_LOG_RESET"
 printf '\n'

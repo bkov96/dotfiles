@@ -35,4 +35,8 @@ if [ "$json_result" -ne 0 ]; then
 fi
 log_info "All JSON files are properly formatted."
 
+log_header "Scanning for secrets with gitleaks..."
+log_task "gitleaks" gitleaks dir "$REPO_DIR" --no-banner -v
+log_info "No secrets detected."
+
 log_done

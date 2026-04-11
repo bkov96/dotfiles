@@ -1,10 +1,16 @@
 {
   "env": {
     "GIT_CONFIG_EMAIL": "",
-    "GIT_CONFIG_NAME": ""
+    "GIT_CONFIG_NAME": "",
+    "HOMELAB_HOST": "",
+    "SSH_PRIVATE_KEY_B64": "",
+    "SSH_PUBLIC_KEY_B64": ""
   },
   "paths": {
     ".gitconfig.tmpl": "~/.gitconfig",
+    ".ssh_config.tmpl": "~/.ssh/config",
+    ".ssh_id_ed25519_homelab.tmpl": "~/.ssh/id_ed25519_homelab",
+    ".ssh_id_ed25519_homelab.pub.tmpl": "~/.ssh/id_ed25519_homelab.pub",
     ".zshrc": "~/.zshrc"
   }
 }

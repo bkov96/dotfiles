@@ -21,17 +21,18 @@ Personal machine configuration, organized by profile and platform. Dotfiles are 
 profiles/
   <profile>/
     <platform>/
-      dotfiles/             # config files to be linked/rendered into $HOME
-      setup/
-        init.sh             # sets up the platform and creates .config.json from example
-        install.sh          # installs all dependencies (e.g. brew bundle)
-        capture.sh          # captures installed packages back to the repo
-        upgrade.sh          # upgrades all packages (e.g. brew upgrade)
-      .config.example.json  # env vars and path overrides (copy to .config.json and fill in)
-      ...                   # platform-specific files (e.g. Brewfile on macOS)
+      [<user>/]             # optional per-user directory (when DOTFILES_USER is set)
+        dotfiles/           # config files to be linked/rendered into $HOME
+        scripts/
+          init.sh           # sets up the platform and creates .config.json from example
+          install.sh        # installs all dependencies (e.g. brew bundle)
+          capture.sh        # captures installed packages back to the repo
+          upgrade.sh        # upgrades all packages (e.g. brew upgrade)
+        .config.example.json
+        Brewfile            # platform-specific packages (macOS)
 ```
 
-Currently available profiles: `work/mac`, `homelab/mac`, `github/ci` (CI only).
+Currently available profiles: `work/mac`, `homelab/mac` (with `admin` and `ops` users), `github/ci` (CI only).
 
 ### How it works
 
@@ -90,7 +91,7 @@ Commands are organized into groups. Use `dotfiles <group> <action>`:
 All commands accept `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` overrides:
 
 ```sh
-dotfiles packages capture DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac
+dotfiles packages capture DOTFILES_PROFILE=homelab DOTFILES_PLATFORM=mac DOTFILES_USER=ops
 ```
 
 ---

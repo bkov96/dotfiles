@@ -1,0 +1,7 @@
+{
+  "env": {
+    "OPS_USER": "",
+    "OPS_PASSWORD": "",
+    "SSH_PUBLIC_KEY_B64": ""
+  }
+}

@@ -2,8 +2,30 @@
 # Shared Bitwarden resolution helpers.
 # Source this file; do not execute directly.
 
-# shellcheck source=/dev/null
-. "$(dirname "$0")/log.sh"
+# Resolve the lib/ directory path. When sourced from scripts outside lib/,
+# dirname "$0" points to the caller's directory, not lib/. Walk up the
+# directory tree from $0 to find the repo root containing lib/resolve.sh.
+_RESOLVE_LIB_DIR="$(
+  cd "$(dirname "$0")" || exit
+  pwd
+)"
+if [ ! -f "$_RESOLVE_LIB_DIR/resolve.sh" ]; then
+  _resolve_candidate="$_RESOLVE_LIB_DIR"
+  while [ "$_resolve_candidate" != "/" ]; do
+    if [ -f "$_resolve_candidate/lib/resolve.sh" ]; then
+      _RESOLVE_LIB_DIR="$_resolve_candidate/lib"
+      break
+    fi
+    _resolve_candidate="$(dirname "$_resolve_candidate")"
+  done
+  unset _resolve_candidate
+fi
+
+# Source log.sh if not already loaded
+if ! command -v log_ok >/dev/null 2>&1; then
+  # shellcheck source=/dev/null
+  . "$_RESOLVE_LIB_DIR/log.sh"
+fi
 
 # Check if any env values use bw:// references
 has_bw_refs() {
@@ -13,7 +35,7 @@ has_bw_refs() {
 # Load BW_SESSION from .bw_session file if not already set in environment
 load_bw_session() {
   if [ -z "$BW_SESSION" ]; then
-    session_file="$(cd "$(dirname "$0")/.." && pwd)/.bw_session"
+    session_file="$(cd "$_RESOLVE_LIB_DIR/.." && pwd)/.bw_session"
     if [ -f "$session_file" ]; then
       BW_SESSION=$(cat "$session_file")
       export BW_SESSION
@@ -41,7 +63,7 @@ ensure_bw_session() {
     ;;
   locked | unauthenticated)
     log_info "Bitwarden session expired or missing, re-authenticating..." >&2
-    _LOG_NESTED=1 sh "$(dirname "$0")/unlock.sh"
+    _LOG_NESTED=1 sh "$_RESOLVE_LIB_DIR/unlock.sh"
     BW_SESSION=""
     load_bw_session
     if [ -z "$BW_SESSION" ]; then
