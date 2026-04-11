@@ -1,2 +1,3 @@
 brew "bitwarden-cli"
+brew "gettext"
 brew "jq"

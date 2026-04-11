@@ -1,2 +1,3 @@
+brew "gettext"
 brew "jq"
 cask "orbstack"
