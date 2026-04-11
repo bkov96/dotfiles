@@ -18,13 +18,15 @@ Create a Bitwarden item named `dotfiles/homelab/mac` (e.g., a Secure Note) with 
 
 | Field                | Value                                         |
 | -------------------- | --------------------------------------------- |
+| `GIT_CONFIG_EMAIL`   | email for the admin account                   |
+| `GIT_CONFIG_NAME`    | name for the admin account                    |
 | `OPS_USER`           | username for the ops account (e.g., `ops`)    |
 | `OPS_PASSWORD`       | password for the ops account                  |
 | `SSH_PUBLIC_KEY_B64` | base64-encoded ed25519 public key (see below) |
 
 ### SSH key pair
 
-Generate a dedicated key pair on your **work Mac** (if not already done):
+Generate a dedicated key pair on your **work or personal Mac** (if not already done):
 
     ssh-keygen -t ed25519 -C "homelab" -f ~/.ssh/id_ed25519_homelab
 
