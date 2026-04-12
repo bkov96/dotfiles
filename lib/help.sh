@@ -33,6 +33,14 @@ printf '  %srepo where%s          Print the absolute repository path\n' "$_LOG_C
 printf '  %srepo cd%s             cd into the repository directory\n' "$_LOG_CYAN" "$_LOG_RESET"
 printf '  %srepo diff%s           Print git diff for the repository\n' "$_LOG_CYAN" "$_LOG_RESET"
 printf '\n'
+printf '%sServices%s\n\n' "$_LOG_BOLD" "$_LOG_RESET"
+printf '  %sservices list%s        List all services and their status\n' "$_LOG_CYAN" "$_LOG_RESET"
+printf '  %sservices init%s        Initialize a service (or all services)\n' "$_LOG_CYAN" "$_LOG_RESET"
+printf '  %sservices start%s       Start a service (or all services)\n' "$_LOG_CYAN" "$_LOG_RESET"
+printf '  %sservices stop%s        Stop a service (or all services)\n' "$_LOG_CYAN" "$_LOG_RESET"
+printf '  %sservices restart%s     Restart a service (or all services)\n' "$_LOG_CYAN" "$_LOG_RESET"
+printf '  %sservices status%s      Show detailed status of a service (or all)\n' "$_LOG_CYAN" "$_LOG_RESET"
+printf '\n'
 printf '%sStandalone%s\n\n' "$_LOG_BOLD" "$_LOG_RESET"
 printf '  %sinit%s                Set up a new machine (install dependencies, create .config.json)\n' "$_LOG_CYAN" "$_LOG_RESET"
 printf '  %senv%s                 Print current DOTFILES_PROFILE and DOTFILES_PLATFORM values\n' "$_LOG_CYAN" "$_LOG_RESET"

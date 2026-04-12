@@ -50,6 +50,9 @@ scripts-verify:
 scripts-test:
 	@sh profiles/$(DOTFILES_PROFILE)/$(DOTFILES_PLATFORM)/test.sh
 
+services-list services-init services-start services-stop services-restart services-status:
+	@sh $(PROFILE_DIR)/scripts/services.sh $(subst services-,,$@) "$(SERVICE_NAME)" $(PROFILE_DIR)
+
 env:
 	@printf '   \033[36mDOTFILES_PROFILE\033[0m=%s\n' "$(DOTFILES_PROFILE)"
 	@printf '   \033[36mDOTFILES_PLATFORM\033[0m=%s\n' "$(DOTFILES_PLATFORM)"

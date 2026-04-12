@@ -24,6 +24,16 @@ dotfiles() {
 
       make -C "$repo" "${group}-${action}" "$@"
       ;;
+    services)
+      local action="$2" service="$3"
+
+      if [ -z "$action" ]; then
+        echo "Usage: dotfiles services <action> [service_name]" >&2
+        return 1
+      fi
+
+      make -C "$repo" "services-${action}" SERVICE_NAME="${service:-}"
+      ;;
     init|env|help)
       local cmd="$1"
       shift

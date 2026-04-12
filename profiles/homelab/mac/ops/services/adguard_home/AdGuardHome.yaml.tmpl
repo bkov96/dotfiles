@@ -1,0 +1,65 @@
+http:
+  pprof:
+    port: 6060
+    enabled: false
+  address: 0.0.0.0:3000
+  session_ttl: 720h
+users: []
+auth_attempts: 5
+block_auth_min: 15
+http_proxy: ""
+language: ""
+theme: auto
+dns:
+  bind_hosts:
+    - 0.0.0.0
+  port: 53
+  protection_enabled: true
+  filtering_enabled: true
+  blocking_mode: default
+  blocked_response_ttl: 10
+  safe_browsing_enabled: false
+  parental_enabled: false
+  safe_search:
+    enabled: false
+  rewrites:
+    - domain: "*.${LAB_DOMAIN}"
+      answer: ${HOMELAB_IP}
+      enabled: true
+  upstream_dns:
+    - "[/internal/]${LOCAL_DNS_FORWARDER}"
+    - ${UPSTREAM_DNS_1}
+    - ${UPSTREAM_DNS_2}
+  bootstrap_dns:
+    - 9.9.9.10
+    - 149.112.112.10
+    - 2620:fe::10
+    - 2620:fe::fe:10
+  cache_size: 4194304
+  cache_ttl_min: 0
+  cache_ttl_max: 0
+  cache_optimistic: false
+  ratelimit: 0
+  refuse_any: true
+tls:
+  enabled: false
+filtering:
+  safe_search:
+    enabled: false
+  rewrites_enabled: true
+  blocking_ipv4: ""
+  blocking_ipv6: ""
+filters: []
+user_rules: []
+dhcp:
+  enabled: false
+log:
+  enabled: true
+  file: ""
+  max_backups: 0
+  max_size: 100
+  max_age: 3
+  compress: false
+  local_time: false
+  verbose: false
+schema_version: 33

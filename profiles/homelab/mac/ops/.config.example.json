@@ -1,7 +1,13 @@
 {
   "env": {
     "GIT_CONFIG_EMAIL": "",
-    "GIT_CONFIG_NAME": ""
+    "GIT_CONFIG_NAME": "",
+    "HOMELAB_IP": "",
+    "LAB_DOMAIN": "",
+    "LOCAL_DNS_FORWARDER": "",
+    "SERVICES_DATA_DIR": "",
+    "UPSTREAM_DNS_1": "",
+    "UPSTREAM_DNS_2": ""
   },
   "paths": {
     ".gitconfig.tmpl": "~/.gitconfig",

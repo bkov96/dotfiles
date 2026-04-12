@@ -71,3 +71,10 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Rendered service files (generated from .tmpl at runtime)
+profiles/homelab/mac/ops/services/*/docker-compose.yml
+profiles/homelab/mac/ops/services/*/AdGuardHome.yaml
+profiles/homelab/mac/ops/services/caddy/Caddyfile
+profiles/homelab/mac/ops/services/caddy/routes/*
+!profiles/homelab/mac/ops/services/caddy/routes/.gitkeep

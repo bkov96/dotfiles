@@ -1,0 +1,19 @@
+services:
+  caddy:
+    image: caddy:2.11.2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ${SERVICES_DATA_DIR}/caddy/data:/data
+      - ${SERVICES_DATA_DIR}/caddy/config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./routes:/etc/caddy/routes:ro
+    networks:
+      - caddy_proxy
+
+networks:
+  caddy_proxy:
+    external: true

@@ -1,0 +1,17 @@
+services:
+  uptime_kuma:
+    image: louislam/uptime-kuma:1.23.17
+    container_name: uptime_kuma
+    restart: unless-stopped
+    environment:
+      - NODE_EXTRA_CA_CERTS=/etc/ssl/caddy-root-ca.crt
+    volumes:
+      - ${SERVICES_DATA_DIR}/uptime_kuma:/app/data
+      - ${SERVICES_DATA_DIR}/_shared/caddy-root-ca.crt:/etc/ssl/caddy-root-ca.crt:ro
+    networks:
+      - caddy_proxy
+      - default
+
+networks:
+  caddy_proxy:
+    external: true
