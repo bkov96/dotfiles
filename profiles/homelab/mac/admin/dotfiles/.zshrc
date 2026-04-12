@@ -43,3 +43,4 @@ dotfiles() {
 
 alias ll="ls -l"
 alias dfs="dotfiles"
+alias ports="~/repos/dotfiles/profiles/homelab/mac/admin/scripts/ports.sh"
