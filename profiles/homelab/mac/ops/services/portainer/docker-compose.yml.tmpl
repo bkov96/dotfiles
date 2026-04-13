@@ -1,0 +1,16 @@
+services:
+  portainer:
+    image: portainer/portainer-ce:2.21.5
+    container_name: portainer
+    restart: unless-stopped
+    command: -H unix:///var/run/docker.sock --http-enabled
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SERVICES_DATA_DIR}/portainer:/data
+    networks:
+      - caddy_proxy
+      - default
+
+networks:
+  caddy_proxy:
+    external: true

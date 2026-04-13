@@ -15,10 +15,10 @@ Docker-based services managed by this repository. All configuration is templated
                                         caddy_proxy network
                                      ┌──────────┼──────────┐
                                      │          │          │
-                                ┌────┴───┐ ┌───┴────┐   ┌─┴─┐
-                                │ Uptime │ │ svc 2  │   │...│
-                                │  Kuma  │ │        │   │   │
-                                └────────┘ └────────┘   └───┘
+                                ┌────┴───┐ ┌────┴─────┐ ┌─┴─┐
+                                │ Uptime │ │ Portainer│ │...│
+                                │  Kuma  │ │          │ │   │
+                                └────────┘ └──────────┘ └───┘
 ```
 
 - **AdGuard Home** resolves `${LAB_DOMAIN}` (bare) and `*.${LAB_DOMAIN}` (wildcard) to the homelab IP, forwards everything else to upstream DNS
@@ -174,6 +174,17 @@ On first start, visit `https://dns.${LAB_DOMAIN}` and complete the setup wizard 
 ### 5. Uptime Kuma: create admin user and monitors
 
 Visit `https://uptime.${LAB_DOMAIN}` and complete the setup. Monitor configuration is stored in the service's SQLite DB (not repo-managed).
+
+### 6. Portainer: first-run admin user
+
+On first start, visit `https://containers.${LAB_DOMAIN}` and create the
+admin user. Portainer closes the initial-user endpoint **5 minutes** after
+the container starts for security reasons — if you miss the window, run
+`dfs services restart portainer` to reopen it.
+
+Portainer manages the local OrbStack Docker environment via the mounted
+`/var/run/docker.sock`. No extra endpoint configuration is needed; the
+local environment shows up automatically.
 
 ## Gotchas worth knowing
 
