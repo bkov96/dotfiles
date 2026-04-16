@@ -3,17 +3,17 @@
 [![verify](https://github.com/bkov96/dotfiles/actions/workflows/verify.yml/badge.svg)](https://github.com/bkov96/dotfiles/actions/workflows/verify.yml)
 [![test](https://github.com/bkov96/dotfiles/actions/workflows/test.yml/badge.svg)](https://github.com/bkov96/dotfiles/actions/workflows/test.yml)
 
-Personal machine configuration, organized by profile and platform. Dotfiles are symlinked into `$HOME`, with template files rendered using `envsubst` to inject personal values like name and email.
+Machine configuration manager, organized by profile and platform. Dotfiles are symlinked into `$HOME`, with template files rendered using `envsubst` to inject personal values like name and email.
 
 ## Contents
 
 - [Structure](#-structure)
+- [Profiles & Platforms](#-profiles--platforms)
 - [Commands](#-commands)
 - [Bootstrap a new machine](#-bootstrap-a-new-machine)
 - [Customizing paths](#️-customizing-paths)
 - [Bitwarden secrets](#-using-bitwarden-for-secrets)
 - [Forking](#-forking)
-- [What's next](#-whats-next)
 
 ## 📁 Structure
 
@@ -28,6 +28,9 @@ profiles/
           install.sh        # installs all dependencies (e.g. brew bundle)
           capture.sh        # captures installed packages back to the repo
           upgrade.sh        # upgrades all packages (e.g. brew upgrade)
+        services/           # Docker service definitions (homelab ops only)
+          <category>/       # e.g. network/, monitoring/
+            <service>/      # contains docker-compose.yml.tmpl + optional hooks
         .config.example.json
         Brewfile            # platform-specific packages (macOS)
 ```
@@ -44,49 +47,72 @@ Currently available profiles: `work/mac`, `homelab/mac` (with `admin` and `ops` 
 
 ---
 
+## 🖥 Profiles & Platforms
+
+| Profile   | Platform | Description                                                                                                                 |
+| --------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `work`    | `mac`    | Work machine                                                                                                                |
+| `homelab` | `mac`    | Homelab server ([bootstrap guide](profiles/homelab/mac/README.md), [services](profiles/homelab/mac/ops/services/README.md)) |
+| `github`  | `ci`     | CI environment                                                                                                              |
+
+The homelab profile has two users: `admin` (bootstrap, sudo) and `ops` (day-to-day operations, services).
+
+---
+
 ## 📦 Commands
 
 Commands are organized into groups. Use `dotfiles <group> <action>`:
 
 ### Packages
 
-| Command              | Description                                                    |
-| -------------------- | -------------------------------------------------------------- |
-| `packages install`   | Install all profile packages (e.g. `brew bundle`)              |
-| `packages capture`   | Capture installed packages back into the repository            |
-| `packages upgrade`   | Upgrade all profile packages (e.g. `brew upgrade`)             |
+| Command            | Description                                         |
+| ------------------ | --------------------------------------------------- |
+| `packages install` | Install all profile packages (e.g. `brew bundle`)   |
+| `packages capture` | Capture installed packages back into the repository |
+| `packages upgrade` | Upgrade all profile packages (e.g. `brew upgrade`)  |
 
 ### Configs
 
-| Command              | Description                                                    |
-| -------------------- | -------------------------------------------------------------- |
-| `configs link`       | Render templates and symlink dotfiles into the machine         |
-| `configs gather`     | Gather rendered dotfiles from the machine back into templates  |
-| `configs unlock`     | Unlock Bitwarden vault for `bw://` secret resolution (runs automatically during `configs link` and `configs gather` when needed) |
+| Command          | Description                                                   |
+| ---------------- | ------------------------------------------------------------- |
+| `configs link`   | Render templates and symlink dotfiles into the machine        |
+| `configs gather` | Gather rendered dotfiles from the machine back into templates |
+| `configs unlock` | Unlock Bitwarden vault for `bw://` secret resolution          |
 
 ### Scripts
 
-| Command              | Description                                                    |
-| -------------------- | -------------------------------------------------------------- |
-| `scripts format`     | Auto-format all `.sh` and `.json` files in the repository      |
-| `scripts verify`     | Run shellcheck and format checks on all scripts and JSON files |
-| `scripts test`       | Run end-to-end tests for `link` and `gather`                   |
+| Command          | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| `scripts format` | Auto-format all `.sh` and `.json` files in the repository      |
+| `scripts verify` | Run shellcheck and format checks on all scripts and JSON files |
+| `scripts test`   | Run end-to-end tests for `link` and `gather`                   |
 
 ### Repo
 
-| Command              | Description                                                    |
-| -------------------- | -------------------------------------------------------------- |
-| `repo where`         | Print the absolute repository path                             |
-| `repo cd`            | cd into the repository directory                               |
-| `repo diff`          | Print git diff for the repository                              |
+| Command      | Description                        |
+| ------------ | ---------------------------------- |
+| `repo where` | Print the absolute repository path |
+| `repo cd`    | cd into the repository directory   |
+| `repo diff`  | Print git diff for the repository  |
+
+### Services
+
+| Command                  | Description                                    |
+| ------------------------ | ---------------------------------------------- |
+| `services list`          | Show all services and their status             |
+| `services init [name]`   | Initialize all or a specific service           |
+| `services start [name]`  | Start all or a specific service (ordered)      |
+| `services stop [name]`   | Stop all or a specific service (reverse order) |
+| `services restart name`  | Restart a specific service                     |
+| `services status [name]` | Show detailed container status                 |
 
 ### Standalone
 
-| Command              | Description                                                    |
-| -------------------- | -------------------------------------------------------------- |
-| `init`               | Set up a new machine: install dependencies and create `.config.json` |
-| `env`                | Print current `DOTFILES_PROFILE` and `DOTFILES_PLATFORM`      |
-| `help`               | Show the help message                                          |
+| Command | Description                                                          |
+| ------- | -------------------------------------------------------------------- |
+| `init`  | Set up a new machine: install dependencies and create `.config.json` |
+| `env`   | Print current `DOTFILES_PROFILE` and `DOTFILES_PLATFORM`             |
+| `help`  | Show the help message                                                |
 
 All commands accept `DOTFILES_PROFILE` and `DOTFILES_PLATFORM` overrides:
 
@@ -168,9 +194,3 @@ For non-interactive environments (servers, CI), set `BW_CLIENTID` and `BW_CLIENT
 ## 🍴 Forking
 
 Want to use this structure for your own machines? See [docs/forking.md](docs/forking.md).
-
----
-
-## 🔭 What's next
-
-See [docs/homelab.md](docs/homelab.md) for guidelines on expanding this repo into a homelab setup with multi-user environments and Docker-based services.

@@ -1,5 +1,14 @@
 # Homelab Mac Mini Bootstrap
 
+## Contents
+
+- [Prerequisites](#prerequisites)
+- [Phase 1: Admin Bootstrap](#phase-1-admin-bootstrap-at-desk-with-display)
+- [Relocation](#relocation)
+- [Phase 2: Ops Setup](#phase-2-ops-setup-via-ssh-from-workmac)
+- [Maintenance](#maintenance)
+- [macOS version](#macos-version)
+
 Bootstrap a fresh M4 Mac Mini (macOS Tahoe 26.4.1) into a headless homelab server.
 
 ## Prerequisites

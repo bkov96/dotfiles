@@ -17,7 +17,7 @@ while [ ! -f "$REPO_DIR/lib/log.sh" ] && [ "$REPO_DIR" != "/" ]; do
   REPO_DIR="$(dirname "$REPO_DIR")"
 done
 SERVICES_DIR="$(cd "$(dirname "$0")/../services" && pwd)"
-CADDY_ROUTES_DIR="$SERVICES_DIR/caddy/routes"
+CADDY_ROUTES_DIR="$SERVICES_DIR/network/caddy/routes"
 
 # shellcheck source=/dev/null
 . "$REPO_DIR/lib/log.sh"
@@ -30,9 +30,17 @@ INFRA_SERVICES="adguard_home caddy"
 
 # List all service directory names (any dir containing docker-compose.yml.tmpl)
 all_services() {
-  for dir in "$SERVICES_DIR"/*/; do
+  for dir in "$SERVICES_DIR"/*/*/; do
     [ -f "$dir/docker-compose.yml.tmpl" ] && basename "$dir"
   done
+}
+
+# Resolve a service name to its full directory path
+service_dir() {
+  for dir in "$SERVICES_DIR"/*/*/; do
+    [ -f "$dir/docker-compose.yml.tmpl" ] && [ "$(basename "$dir")" = "$1" ] && printf '%s' "${dir%/}" && return
+  done
+  return 1
 }
 
 # Return services in start order: infra first, then the rest alphabetically
@@ -57,7 +65,7 @@ reverse_ordered_services() {
 
 # Check if a service directory exists
 validate_service() {
-  if [ ! -f "$SERVICES_DIR/$1/docker-compose.yml.tmpl" ]; then
+  if [ -z "$(service_dir "$1")" ]; then
     log_error "Unknown service: $1"
     log_info "Available services: $(all_services | tr '\n' ' ')"
     exit 1
@@ -85,7 +93,7 @@ load_env() {
 # Render all .tmpl files in a service directory and its subdirectories
 # (excluding caddy.snippet.tmpl which is handled separately)
 render_templates() {
-  _svc_dir="$SERVICES_DIR/$1"
+  _svc_dir="$(service_dir "$1")"
   find "$_svc_dir" -name '*.tmpl' -type f | while IFS= read -r tmpl; do
     _basename=$(basename "$tmpl")
     # Skip caddy snippets — handled separately
@@ -101,7 +109,7 @@ render_templates() {
 # so we copy rather than bind-mount read-only.
 install_config_to_data() {
   _svc="$1"
-  _svc_dir="$SERVICES_DIR/$_svc"
+  _svc_dir="$(service_dir "$_svc")"
   _data="$SERVICES_DATA_DIR/$_svc"
   case "$_svc" in
   adguard_home)
@@ -117,7 +125,7 @@ install_config_to_data() {
 # Copy the service's caddy.snippet.tmpl (rendered) into caddy/routes/
 install_caddy_route() {
   _svc="$1"
-  _snippet="$SERVICES_DIR/$_svc/caddy.snippet.tmpl"
+  _snippet="$(service_dir "$_svc")/caddy.snippet.tmpl"
   [ -f "$_snippet" ] || return 0
   mkdir -p "$CADDY_ROUTES_DIR"
   envsubst "$ENVSUBST_VARS" <"$_snippet" >"$CADDY_ROUTES_DIR/$_svc.snippet"
@@ -135,15 +143,16 @@ remove_caddy_route() {
 
 # Reload Caddy if it's running
 reload_caddy() {
-  if docker compose -f "$SERVICES_DIR/caddy/docker-compose.yml" ps --status running 2>/dev/null | grep -q caddy; then
-    docker compose -f "$SERVICES_DIR/caddy/docker-compose.yml" exec caddy caddy reload --config /etc/caddy/Caddyfile 2>/dev/null || true
+  _caddy_dir="$(service_dir "caddy")"
+  if docker compose -f "$_caddy_dir/docker-compose.yml" ps --status running 2>/dev/null | grep -q caddy; then
+    docker compose -f "$_caddy_dir/docker-compose.yml" exec caddy caddy reload --config /etc/caddy/Caddyfile 2>/dev/null || true
     log_item "Reloaded Caddy"
   fi
 }
 
 # Check if a service is running (any container up)
 is_running() {
-  _svc_dir="$SERVICES_DIR/$1"
+  _svc_dir="$(service_dir "$1")"
   [ -f "$_svc_dir/docker-compose.yml" ] || return 1
   docker compose -f "$_svc_dir/docker-compose.yml" ps --status running 2>/dev/null | grep -q . 2>/dev/null
 }
@@ -179,8 +188,9 @@ do_init() {
   create_data_dir "$_svc"
   render_templates "$_svc"
   install_config_to_data "$_svc"
-  if [ -f "$SERVICES_DIR/$_svc/init.sh" ]; then
-    sh "$SERVICES_DIR/$_svc/init.sh" "$SERVICES_DIR/$_svc"
+  _svc_dir="$(service_dir "$_svc")"
+  if [ -f "$_svc_dir/init.sh" ]; then
+    sh "$_svc_dir/init.sh" "$_svc_dir"
   fi
   log_ok "$_svc initialized"
 }
@@ -198,9 +208,10 @@ do_start() {
   if [ "$_svc" != "caddy" ]; then
     reload_caddy
   fi
-  docker compose -f "$SERVICES_DIR/$_svc/docker-compose.yml" up -d
-  if [ -f "$SERVICES_DIR/$_svc/post-start.sh" ]; then
-    sh "$SERVICES_DIR/$_svc/post-start.sh" "$SERVICES_DIR/$_svc"
+  _svc_dir="$(service_dir "$_svc")"
+  docker compose -f "$_svc_dir/docker-compose.yml" up -d
+  if [ -f "$_svc_dir/post-start.sh" ]; then
+    sh "$_svc_dir/post-start.sh" "$_svc_dir"
   fi
   log_ok "$_svc started"
 }
@@ -209,8 +220,9 @@ do_stop() {
   _svc="$1"
   log_header "Stopping $_svc..."
   validate_service "$_svc"
-  if [ -f "$SERVICES_DIR/$_svc/docker-compose.yml" ]; then
-    docker compose -f "$SERVICES_DIR/$_svc/docker-compose.yml" down
+  _svc_dir="$(service_dir "$_svc")"
+  if [ -f "$_svc_dir/docker-compose.yml" ]; then
+    docker compose -f "$_svc_dir/docker-compose.yml" down
     remove_caddy_route "$_svc"
     if [ "$_svc" != "caddy" ]; then
       reload_caddy
@@ -230,8 +242,9 @@ do_status() {
   _svc="$1"
   validate_service "$_svc"
   log_header "Status: $_svc"
-  if [ -f "$SERVICES_DIR/$_svc/docker-compose.yml" ]; then
-    docker compose -f "$SERVICES_DIR/$_svc/docker-compose.yml" ps
+  _svc_dir="$(service_dir "$_svc")"
+  if [ -f "$_svc_dir/docker-compose.yml" ]; then
+    docker compose -f "$_svc_dir/docker-compose.yml" ps
   else
     log_info "Not initialized (no rendered docker-compose.yml)"
   fi

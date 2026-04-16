@@ -1,5 +1,18 @@
 # Homelab Services
 
+## Contents
+
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [Commands](#commands)
+- [Service lifecycle](#service-lifecycle)
+- [Adding a new service](#adding-a-new-service)
+- [Startup order](#startup-order)
+- [Data persistence](#data-persistence)
+- [Manual setup steps](#manual-setup-steps-not-repo-managed)
+- [Gotchas worth knowing](#gotchas-worth-knowing)
+- [Future work](#future-work-intentionally-not-implemented)
+
 Docker-based services managed by this repository. All configuration is templated — secrets and network-specific values come from Bitwarden via `.config.json`. Rendered files, persistent data, and runtime state live outside the repo.
 
 ## Architecture
@@ -7,24 +20,23 @@ Docker-based services managed by this repository. All configuration is templated
 ```
                     DNS (port 53)          HTTPS (port 443)
                         │                       │
-                   ┌────┴────┐             ┌────┴────┐
-                   │ AdGuard │             │  Caddy  │
-                   │  Home   │             │ (proxy) │
-                   └─────────┘             └────┬────┘
+               ┌────────┴────────┐     ┌────────┴────────┐
+               │  network/       │     │  network/       │
+               │  AdGuard Home   │     │  Caddy (proxy)  │
+               └─────────────────┘     └────────┬────────┘
                                                 │
                                         caddy_proxy network
-                                     ┌──────────┼──────────┐
-                                     │          │          │
-                                ┌────┴───┐ ┌────┴─────-┐ ┌─┴───────--┐
-                                │ Uptime │ │ Portainer │ │  Grafana  │
-                                │  Kuma  │ │           │ │           │
-                                └────────┘ └──────────-┘ └────┬─────-┘
+                                  ┌─────────────┼─────────────┐
+                                  │             │             │
+                           ┌──────┴──────┐ ┌─────┴──────┐ ┌─────┴──────┐
+                           │ monitoring/ │ │ monitoring/ │ │monitoring/ │
+                           │ Uptime Kuma │ │  Portainer  │ │  Grafana   │
+                           └─────────────┘ └─────────────┘ └─────┬──────┘
                                                               │ queries
-                                                        ┌────-┴─────-┐
-                                                        │ Prometheus │◄── scrapes
-                                                        └──────────--┘    cAdvisor,
-                                                                          Caddy admin,
-                                                                          host node_exporter
+                                                       ┌──────┴──────┐
+                                                       │ monitoring/ │
+                                                       │ Prometheus  │◄── scrapes
+                                                       └─────────────┘    host metrics
 ```
 
 - **AdGuard Home** resolves `${LAB_DOMAIN}` (bare) and `*.${LAB_DOMAIN}` (wildcard) to the homelab IP, forwards everything else to upstream DNS
@@ -93,7 +105,7 @@ dfs services status <name>       # Show detailed status
 
 ## Adding a new service
 
-1. Create a directory under `services/` named after the product (e.g., `grafana/`)
+1. Create a directory under `services/<category>/` named after the product (e.g., `monitoring/grafana/`)
 2. Add a `docker-compose.yml.tmpl` — this is what defines it as a service
 3. If web-facing, add a `caddy.snippet.tmpl` with the reverse proxy route
 4. Add new Bitwarden fields to `.config.example.json` if the service needs them
@@ -101,7 +113,7 @@ dfs services status <name>       # Show detailed status
 
 ### Minimal service example
 
-**`my_service/docker-compose.yml.tmpl`**
+**`monitoring/my_service/docker-compose.yml.tmpl`**
 
 ```yaml
 services:
@@ -119,7 +131,7 @@ networks:
     external: true
 ```
 
-**`my_service/caddy.snippet.tmpl`**
+**`monitoring/my_service/caddy.snippet.tmpl`**
 
 ```
 my-service.${LAB_DOMAIN} {
@@ -246,9 +258,9 @@ the Bitwarden field `TELEGRAM_CHAT_ID_MONITORING`.
 ### 9. Grafana: first-run login
 
 On first start, visit `https://monitoring.${LAB_DOMAIN}` and log in as
-`admin` with the password set in `GRAFANA_ADMIN_PASSWORD`. The four
-provisioned dashboards (Node Exporter Full, Docker Monitoring,
-Prometheus 2.0 Stats, Caddy Monitoring) appear under the "Homelab"
+`admin` with the password set in `GRAFANA_ADMIN_PASSWORD`. The three
+provisioned dashboards (Node Exporter Full, Prometheus Stats,
+Caddy Monitoring) appear under the "Homelab"
 folder. There is no setup wizard.
 
 Provisioned alert rules and the Telegram contact point appear under
