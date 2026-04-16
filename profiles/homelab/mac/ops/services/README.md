@@ -18,12 +18,12 @@ Docker-based services managed by this repository. All configuration is templated
 ## Architecture
 
 ```
-                    DNS (port 53)          HTTPS (port 443)
-                        │                       │
-               ┌────────┴────────┐     ┌────────┴────────┐
-               │  network/       │     │  network/       │
-               │  AdGuard Home   │     │  Caddy (proxy)  │
-               └─────────────────┘     └────────┬────────┘
+                                       HTTPS (port 443)
+                                                │
+                                       ┌────────┴────────┐
+                                       │  network/       │
+                                       │  Caddy (proxy)  │
+                                       └────────┬────────┘
                                                 │
                                         caddy_proxy network
                                   ┌─────────────┼─────────────┐
@@ -39,10 +39,10 @@ Docker-based services managed by this repository. All configuration is templated
                                                        └─────────────┘    host metrics
 ```
 
-- **AdGuard Home** resolves `${LAB_DOMAIN}` (bare) and `*.${LAB_DOMAIN}` (wildcard) to the homelab IP, forwards everything else to upstream DNS
+- **DNS** is resolved by the router — no local DNS service needed
 - **Caddy** terminates TLS using its own internal CA and reverse-proxies to services on the `caddy_proxy` network
 - **App services** publish no ports — reachable only through Caddy
-- AdGuard Home + Caddy are the only services that publish ports to the host (53, 80, 443)
+- Caddy is the only service that publishes ports to the host (80, 443)
 
 ## Prerequisites
 
@@ -56,11 +56,9 @@ Docker-based services managed by this repository. All configuration is templated
 
 | Field                           | Purpose                                 |
 | ------------------------------- | --------------------------------------- |
-| `HOMELAB_IP`                    | Mac Mini static IP (DNS rewrite target) |
+| `HOMELAB_IP`                    | Mac Mini static IP                      |
 | `LAB_DOMAIN`                    | Internal domain                         |
 | `SERVICES_DATA_DIR`             | Host path for persistent volumes        |
-| `UPSTREAM_DNS_1`                | Primary upstream DNS                    |
-| `UPSTREAM_DNS_2`                | Secondary upstream DNS                  |
 | `GRAFANA_ADMIN_PASSWORD`        | Initial Grafana admin password          |
 | `TELEGRAM_BOT_TOKEN_MONITORING` | Token for the dedicated monitoring bot  |
 | `TELEGRAM_CHAT_ID_MONITORING`   | Chat ID that receives Grafana alerts    |
@@ -95,11 +93,11 @@ dfs services status <name>       # Show detailed status
 2. Ensure the shared `caddy_proxy` Docker network exists
 3. Create the service's data directory under `${SERVICES_DATA_DIR}/<name>/`
 4. Render all `*.tmpl` files in the service directory (`envsubst` substitutes `${VAR}` references)
-5. Copy service-specific config into the data directory (only for services that need it, e.g. AdGuard Home)
+5. Copy service-specific config into the data directory (if needed)
 6. Render `caddy.snippet.tmpl` (if present) into `caddy/routes/<name>.snippet`
 7. Reload Caddy (if running) to pick up the new route
 8. `docker compose up -d`
-9. Run `post-start.sh` if present (e.g., AdGuard Home uses this to add DNS rewrites via API)
+9. Run `post-start.sh` if present
 
 `dfs services stop <name>` runs `docker compose down`, removes the Caddy route, reloads Caddy.
 
@@ -144,9 +142,8 @@ my-service.${LAB_DOMAIN} {
 
 When starting all services, infrastructure comes first:
 
-1. AdGuard Home (DNS)
-2. Caddy (reverse proxy)
-3. Everything else (alphabetical)
+1. Caddy (reverse proxy)
+2. Everything else (alphabetical)
 
 Stop runs in reverse. Individual commands have no ordering.
 
@@ -156,7 +153,7 @@ Each service stores persistent data in `${SERVICES_DATA_DIR}/<service_name>/`. T
 
 **What's repo-managed (source of truth):** templates, compose files, Caddy snippets, scripts.
 
-**What's NOT in the repo:** rendered configs, persistent data, secrets, AdGuard Home admin user (created via the web UI wizard on first start).
+**What's NOT in the repo:** rendered configs, persistent data, secrets.
 
 ## Manual setup steps (not repo-managed)
 
@@ -171,11 +168,7 @@ For each VLAN that should use the homelab DNS (and be able to resolve `*.${LAB_D
 
 **VLAN30** (homelab) should always point here. Any other VLAN you want to access `*.${LAB_DOMAIN}` from needs the same change.
 
-### 2. UniFi: disable Content Filtering if it intercepts DNS
-
-UniFi's Content Filtering (Settings → Networks → VLAN → Security) transparently intercepts port 53 traffic and answers queries itself, bypassing AdGuard Home entirely. If services don't resolve from a given VLAN despite correct DHCP DNS settings, check here — and also check any `${LAB_DOMAIN}` A records you may have added directly in UniFi (they conflict with AdGuard Home's rewrites).
-
-### 3. Trust Caddy's root CA on each device
+### 2. Trust Caddy's root CA on each device
 
 Caddy generates its own root CA on first start. To access services via HTTPS without browser warnings, trust the CA on each device:
 
@@ -195,15 +188,11 @@ For iOS: AirDrop the `.crt` file → Settings → Profile Downloaded → Install
 
 Trusting on the headless Mac Mini itself requires Screen Sharing (VNC) — `security add-trusted-cert` refuses to run in a non-interactive SSH session on macOS.
 
-### 4. AdGuard Home: first-run setup wizard
-
-On first start, visit `https://dns.${LAB_DOMAIN}` and complete the setup wizard (create admin user). This state lives in the data volume (SQLite DBs and the YAML config), not the repo.
-
-### 5. Uptime Kuma: create admin user and monitors
+### 3. Uptime Kuma: create admin user and monitors
 
 Visit `https://uptime.${LAB_DOMAIN}` and complete the setup. Monitor configuration is stored in the service's SQLite DB (not repo-managed).
 
-### 6. Portainer: first-run admin user
+### 4. Portainer: first-run admin user
 
 On first start, visit `https://containers.${LAB_DOMAIN}` and create the
 admin user. Portainer closes the initial-user endpoint **5 minutes** after
@@ -214,7 +203,7 @@ Portainer manages the local OrbStack Docker environment via the mounted
 `/var/run/docker.sock`. No extra endpoint configuration is needed; the
 local environment shows up automatically.
 
-### 7. Native node_exporter (one-time, on the homelab)
+### 5. Native node_exporter (one-time, on the homelab)
 
 `node_exporter` runs natively on macOS so it can read real host sysctl
 metrics (Linux containers can't see the macOS host). It is installed by
@@ -235,7 +224,7 @@ curl -s http://127.0.0.1:9100/metrics | head -5
 
 Expected: a few `# HELP …` lines.
 
-### 8. Telegram monitoring bot (one-time)
+### 6. Telegram monitoring bot (one-time)
 
 The Grafana alert pipeline uses a **dedicated** bot — separate from any
 existing Uptime Kuma bot — so monitoring noise stays isolated from
@@ -255,7 +244,7 @@ curl "https://api.telegram.org/bot<TOKEN>/getUpdates"
 Find the `chat.id` numeric value in the JSON response. Save it into
 the Bitwarden field `TELEGRAM_CHAT_ID_MONITORING`.
 
-### 9. Grafana: first-run login
+### 7. Grafana: first-run login
 
 On first start, visit `https://monitoring.${LAB_DOMAIN}` and log in as
 `admin` with the password set in `GRAFANA_ADMIN_PASSWORD`. The three
@@ -270,14 +259,6 @@ threshold to `1`); a Telegram message should arrive within ~1 minute.
 Restore the threshold when done.
 
 ## Gotchas worth knowing
-
-### AdGuard Home wipes DNS rewrites on startup
-
-AdGuard Home re-writes its own config on startup during schema migrations and first-run setup, stripping the `rewrites` list. The template still defines rewrites (for completeness), but they don't survive. The permanent fix is the `post-start.sh` hook that re-adds rewrites via AdGuard's HTTP API after the container is running. This is idempotent — duplicate adds are silently ignored.
-
-### Wildcard does not match the bare domain
-
-AdGuard Home's `*.${LAB_DOMAIN}` rewrite matches `uptime.${LAB_DOMAIN}`, `dns.${LAB_DOMAIN}`, etc., but NOT `${LAB_DOMAIN}` itself. The post-start hook adds **two** rewrites: one wildcard, one for the bare domain.
 
 ### The `caddy_proxy` network is created by services.sh, not Caddy's compose
 
@@ -296,6 +277,6 @@ Services reference `caddy_proxy` as `external: true` in their compose files. `se
   Telegram channel weekly via launchd. Deferred from the initial monitoring
   rollout. Spec lives at
   `docs/superpowers/specs/2026-04-13-grafana-prometheus-monitoring-design.md`.
-- **Per-service exporters for AdGuard Home and Uptime Kuma** — same spec.
+- **Per-service exporter for Uptime Kuma** — same spec.
 - **Host temperature metrics via node_exporter textfile collector** — same
   spec.

@@ -24,7 +24,7 @@ CADDY_ROUTES_DIR="$SERVICES_DIR/network/caddy/routes"
 # shellcheck source=/dev/null
 . "$REPO_DIR/lib/resolve.sh"
 
-INFRA_SERVICES="adguard_home caddy"
+INFRA_SERVICES="caddy"
 
 # --- Helpers ---
 
@@ -104,22 +104,13 @@ render_templates() {
   done
 }
 
-# Copy rendered config files into the service's data directory
-# Some services (e.g., AdGuard Home) need to write to their config at runtime,
+# Copy rendered config files into the service's data directory.
+# Some services need to write to their config at runtime,
 # so we copy rather than bind-mount read-only.
 install_config_to_data() {
   _svc="$1"
-  _svc_dir="$(service_dir "$_svc")"
-  _data="$SERVICES_DATA_DIR/$_svc"
-  case "$_svc" in
-  adguard_home)
-    if [ -f "$_svc_dir/AdGuardHome.yaml" ]; then
-      mkdir -p "$_data/conf"
-      cp "$_svc_dir/AdGuardHome.yaml" "$_data/conf/AdGuardHome.yaml"
-      log_item "Installed AdGuard Home config to data directory"
-    fi
-    ;;
-  esac
+  # No services currently need this — kept as a hook for future use.
+  :
 }
 
 # Copy the service's caddy.snippet.tmpl (rendered) into caddy/routes/

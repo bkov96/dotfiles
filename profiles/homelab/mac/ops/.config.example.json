@@ -5,12 +5,9 @@
     "GRAFANA_ADMIN_PASSWORD": "",
     "HOMELAB_IP": "",
     "LAB_DOMAIN": "",
-    "LOCAL_DNS_FORWARDER": "",
     "SERVICES_DATA_DIR": "",
     "TELEGRAM_BOT_TOKEN_MONITORING": "",
-    "TELEGRAM_CHAT_ID_MONITORING": "",
-    "UPSTREAM_DNS_1": "",
-    "UPSTREAM_DNS_2": ""
+    "TELEGRAM_CHAT_ID_MONITORING": ""
   },
   "paths": {
     ".gitconfig.tmpl": "~/.gitconfig",
