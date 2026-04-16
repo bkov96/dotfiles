@@ -1,3 +1,4 @@
 brew "gettext"
 brew "jq"
+brew "node_exporter"
 cask "orbstack"

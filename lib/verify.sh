@@ -21,9 +21,7 @@ log_info "All shell scripts are properly formatted."
 log_header "Checking JSON file formatting with jq..."
 json_result=0
 for file in $(find "$REPO_DIR" -name "*.json" | sort); do
-  formatted="$(jq . "$file")"
-  original="$(cat "$file")"
-  if [ "$formatted" != "$original" ]; then
+  if ! jq . "$file" | diff -q - "$file" >/dev/null 2>&1; then
     log_fail "$file (not formatted, run 'make format')"
     json_result=1
   else

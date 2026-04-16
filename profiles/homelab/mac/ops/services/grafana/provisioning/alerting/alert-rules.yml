@@ -1,0 +1,91 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: HomelabHostHealth
+    folder: Homelab
+    interval: 1m
+    rules:
+      - uid: host-high-cpu
+        title: HostHighCPU
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              expr: '100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)'
+              instant: true
+          - refId: C
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [80] }
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: "Host CPU > 80% for 10m"
+        labels:
+          severity: warning
+
+      - uid: host-high-memory
+        title: HostHighMemory
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              expr: '100 * (node_memory_active_bytes + node_memory_wired_bytes) / node_memory_total_bytes'
+              instant: true
+          - refId: C
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [80] }
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: "Host memory (active+wired) > 80% for 10m"
+        labels:
+          severity: warning
+
+      - uid: host-low-disk
+        title: HostLowDisk
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              expr: '100 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} * 100)'
+              instant: true
+          - refId: C
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [80] }
+        noDataState: NoData
+        execErrState: Error
+        for: 15m
+        annotations:
+          summary: "Host root filesystem > 80% used for 15m"
+        labels:
+          severity: warning

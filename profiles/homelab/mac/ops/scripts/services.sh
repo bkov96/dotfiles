@@ -82,17 +82,17 @@ load_env() {
   ENVSUBST_VARS=$(jq -r '.env // {} | keys[] | "$" + .' "$PROFILE_DIR/.config.json" | tr '\n' ' ')
 }
 
-# Render all .tmpl files in a service directory (excluding caddy.snippet.tmpl)
+# Render all .tmpl files in a service directory and its subdirectories
+# (excluding caddy.snippet.tmpl which is handled separately)
 render_templates() {
   _svc_dir="$SERVICES_DIR/$1"
-  for tmpl in "$_svc_dir"/*.tmpl; do
-    [ -f "$tmpl" ] || continue
+  find "$_svc_dir" -name '*.tmpl' -type f | while IFS= read -r tmpl; do
     _basename=$(basename "$tmpl")
     # Skip caddy snippets — handled separately
     [ "$_basename" = "caddy.snippet.tmpl" ] && continue
-    _target="$_svc_dir/$(echo "$_basename" | sed 's/\.tmpl$//')"
+    _target="${tmpl%.tmpl}"
     envsubst "$ENVSUBST_VARS" <"$tmpl" >"$_target"
-    log_item "Rendered $_basename"
+    log_item "Rendered ${tmpl#"$_svc_dir/"}"
   done
 }
 

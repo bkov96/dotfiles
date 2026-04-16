@@ -78,3 +78,4 @@ profiles/homelab/mac/ops/services/*/AdGuardHome.yaml
 profiles/homelab/mac/ops/services/caddy/Caddyfile
 profiles/homelab/mac/ops/services/caddy/routes/*
 !profiles/homelab/mac/ops/services/caddy/routes/.gitkeep
+profiles/homelab/mac/ops/services/grafana/provisioning/alerting/contact-points.yml

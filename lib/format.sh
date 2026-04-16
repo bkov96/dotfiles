@@ -14,7 +14,7 @@ done
 log_header "Formatting JSON files with jq..."
 find "$REPO_DIR" -name "*.json" | sort | while read -r file; do
   formatted="$(jq . "$file")"
-  echo "$formatted" >"$file"
+  printf '%s\n' "$formatted" >"$file"
   log_ok "$file"
 done
 

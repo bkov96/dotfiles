@@ -15,10 +15,16 @@ Docker-based services managed by this repository. All configuration is templated
                                         caddy_proxy network
                                      ┌──────────┼──────────┐
                                      │          │          │
-                                ┌────┴───┐ ┌────┴─────┐ ┌─┴─┐
-                                │ Uptime │ │ Portainer│ │...│
-                                │  Kuma  │ │          │ │   │
-                                └────────┘ └──────────┘ └───┘
+                                ┌────┴───┐ ┌────┴─────-┐ ┌─┴───────--┐
+                                │ Uptime │ │ Portainer │ │  Grafana  │
+                                │  Kuma  │ │           │ │           │
+                                └────────┘ └──────────-┘ └────┬─────-┘
+                                                              │ queries
+                                                        ┌────-┴─────-┐
+                                                        │ Prometheus │◄── scrapes
+                                                        └──────────--┘    cAdvisor,
+                                                                          Caddy admin,
+                                                                          host node_exporter
 ```
 
 - **AdGuard Home** resolves `${LAB_DOMAIN}` (bare) and `*.${LAB_DOMAIN}` (wildcard) to the homelab IP, forwards everything else to upstream DNS
@@ -36,13 +42,23 @@ Docker-based services managed by this repository. All configuration is templated
 
 ### Bitwarden fields (added to the existing `dotfiles/homelab/mac` item)
 
-| Field               | Purpose                                 |
-| ------------------- | --------------------------------------- |
-| `HOMELAB_IP`        | Mac Mini static IP (DNS rewrite target) |
-| `LAB_DOMAIN`        | Internal domain (e.g., `lab.internal`)  |
-| `SERVICES_DATA_DIR` | Host path for persistent volumes        |
-| `UPSTREAM_DNS_1`    | Primary upstream DNS                    |
-| `UPSTREAM_DNS_2`    | Secondary upstream DNS                  |
+| Field                           | Purpose                                 |
+| ------------------------------- | --------------------------------------- |
+| `HOMELAB_IP`                    | Mac Mini static IP (DNS rewrite target) |
+| `LAB_DOMAIN`                    | Internal domain                         |
+| `SERVICES_DATA_DIR`             | Host path for persistent volumes        |
+| `UPSTREAM_DNS_1`                | Primary upstream DNS                    |
+| `UPSTREAM_DNS_2`                | Secondary upstream DNS                  |
+| `GRAFANA_ADMIN_PASSWORD`        | Initial Grafana admin password          |
+| `TELEGRAM_BOT_TOKEN_MONITORING` | Token for the dedicated monitoring bot  |
+| `TELEGRAM_CHAT_ID_MONITORING`   | Chat ID that receives Grafana alerts    |
+
+When creating `GRAFANA_ADMIN_PASSWORD`, note the following constraint:
+
+> **Note:** the password is interpolated into a YAML Compose file via `envsubst`,
+> so it should avoid YAML-special characters (`:`, `#`, `{`, `}`, `[`, `]`, `*`,
+> `&`, `|`, `>`, `'`, `"`, `!`, etc.). Stick to alphanumeric plus safe symbols
+> like `-`, `_`, `@` to avoid surprises at render time.
 
 ## Commands
 
@@ -145,7 +161,7 @@ For each VLAN that should use the homelab DNS (and be able to resolve `*.${LAB_D
 
 ### 2. UniFi: disable Content Filtering if it intercepts DNS
 
-UniFi's Content Filtering (Settings → Networks → VLAN → Security) transparently intercepts port 53 traffic and answers queries itself, bypassing AdGuard Home entirely. If services don't resolve from a given VLAN despite correct DHCP DNS settings, check here — and also check any `lab.internal` A records you may have added directly in UniFi (they conflict with AdGuard Home's rewrites).
+UniFi's Content Filtering (Settings → Networks → VLAN → Security) transparently intercepts port 53 traffic and answers queries itself, bypassing AdGuard Home entirely. If services don't resolve from a given VLAN despite correct DHCP DNS settings, check here — and also check any `${LAB_DOMAIN}` A records you may have added directly in UniFi (they conflict with AdGuard Home's rewrites).
 
 ### 3. Trust Caddy's root CA on each device
 
@@ -186,6 +202,61 @@ Portainer manages the local OrbStack Docker environment via the mounted
 `/var/run/docker.sock`. No extra endpoint configuration is needed; the
 local environment shows up automatically.
 
+### 7. Native node_exporter (one-time, on the homelab)
+
+`node_exporter` runs natively on macOS so it can read real host sysctl
+metrics (Linux containers can't see the macOS host). It is installed by
+`make ops-install` via the ops `Brewfile`. Start it once after install:
+
+```sh
+brew services start node_exporter
+```
+
+It listens on `127.0.0.1:9100` and is reached from inside Docker via
+`host.docker.internal:9100` (Prometheus scrapes it there).
+
+To verify after install:
+
+```sh
+curl -s http://127.0.0.1:9100/metrics | head -5
+```
+
+Expected: a few `# HELP …` lines.
+
+### 8. Telegram monitoring bot (one-time)
+
+The Grafana alert pipeline uses a **dedicated** bot — separate from any
+existing Uptime Kuma bot — so monitoring noise stays isolated from
+reachability pings.
+
+1. In Telegram, message `@BotFather`. Send `/newbot` and follow the
+   prompts (e.g., name it `homelab-monitoring`). Save the HTTP API token
+   into the Bitwarden field `TELEGRAM_BOT_TOKEN_MONITORING`.
+2. Open a chat with the new bot from your Telegram account and send any
+   message (e.g., `/start`).
+3. From any machine, fetch the chat ID:
+
+```sh
+curl "https://api.telegram.org/bot<TOKEN>/getUpdates"
+```
+
+Find the `chat.id` numeric value in the JSON response. Save it into
+the Bitwarden field `TELEGRAM_CHAT_ID_MONITORING`.
+
+### 9. Grafana: first-run login
+
+On first start, visit `https://monitoring.${LAB_DOMAIN}` and log in as
+`admin` with the password set in `GRAFANA_ADMIN_PASSWORD`. The four
+provisioned dashboards (Node Exporter Full, Docker Monitoring,
+Prometheus 2.0 Stats, Caddy Monitoring) appear under the "Homelab"
+folder. There is no setup wizard.
+
+Provisioned alert rules and the Telegram contact point appear under
+**Alerting** in the left nav. To smoke-test the wiring, edit any rule
+temporarily to a threshold you are currently exceeding (e.g., HostHighCPU
+threshold to `1`); a Telegram message should arrive within ~1 minute.
+Restore the threshold when done.
+
 ## Gotchas worth knowing
 
 ### AdGuard Home wipes DNS rewrites on startup
@@ -194,7 +265,7 @@ AdGuard Home re-writes its own config on startup during schema migrations and fi
 
 ### Wildcard does not match the bare domain
 
-AdGuard Home's `*.lab.internal` rewrite matches `uptime.lab.internal`, `dns.lab.internal`, etc., but NOT `lab.internal` itself. The post-start hook adds **two** rewrites: one wildcard, one for the bare domain.
+AdGuard Home's `*.${LAB_DOMAIN}` rewrite matches `uptime.${LAB_DOMAIN}`, `dns.${LAB_DOMAIN}`, etc., but NOT `${LAB_DOMAIN}` itself. The post-start hook adds **two** rewrites: one wildcard, one for the bare domain.
 
 ### The `caddy_proxy` network is created by services.sh, not Caddy's compose
 
@@ -205,3 +276,14 @@ Services reference `caddy_proxy` as `external: true` in their compose files. `se
 - Requires GUI launch once to complete initial setup
 - Reopening the VNC session shows the login screen — the session locks when disconnected. Disable screen lock in System Settings → Lock Screen for a smoother experience.
 - VNC "High performance" mode often fails on first connect to a headless Mac; drop to Adaptive, then switch via the **View** menu in Screen Sharing after connecting.
+
+## Future work (intentionally not implemented)
+
+- **Weekly Telegram digest** — a small script queries Prometheus for 7-day
+  averages (CPU, memory, disk) and posts a text summary to the monitoring
+  Telegram channel weekly via launchd. Deferred from the initial monitoring
+  rollout. Spec lives at
+  `docs/superpowers/specs/2026-04-13-grafana-prometheus-monitoring-design.md`.
+- **Per-service exporters for AdGuard Home and Uptime Kuma** — same spec.
+- **Host temperature metrics via node_exporter textfile collector** — same
+  spec.
