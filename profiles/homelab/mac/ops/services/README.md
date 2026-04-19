@@ -26,17 +26,21 @@ Docker-based services managed by this repository. All configuration is templated
                                        └────────┬────────┘
                                                 │
                                         caddy_proxy network
-                                  ┌─────────────┼─────────────┐
-                                  │             │             │
-                           ┌──────┴──────┐ ┌─────┴──────┐ ┌─────┴──────┐
-                           │ monitoring/ │ │ monitoring/ │ │monitoring/ │
-                           │ Uptime Kuma │ │  Portainer  │ │  Grafana   │
-                           └─────────────┘ └─────────────┘ └─────┬──────┘
-                                                              │ queries
-                                                       ┌──────┴──────┐
-                                                       │ monitoring/ │
-                                                       │ Prometheus  │◄── scrapes
-                                                       └─────────────┘    host metrics
+                           ┌────────────────────┼─────────────┐
+                           │                    │             │
+                    ┌──────┴──────┐      ┌──────┴──────┐     │
+                    │  storage/   │      │ monitoring/ │     │
+                    │ FileBrowser │      │ Uptime Kuma │     │
+                    │  Quantum    │      ├─────────────┤     │
+                    └─────────────┘      │  Portainer  │     │
+                                         ├─────────────┤     │
+                                         │  Grafana    │─────┘
+                                         └──────┬──────┘
+                                                │ queries
+                                         ┌──────┴──────┐
+                                         │ monitoring/ │
+                                         │ Prometheus  │◄── scrapes
+                                         └─────────────┘    host metrics
 ```
 
 - **DNS** is resolved by the router — no local DNS service needed
@@ -257,6 +261,17 @@ Provisioned alert rules and the Telegram contact point appear under
 temporarily to a threshold you are currently exceeding (e.g., HostHighCPU
 threshold to `1`); a Telegram message should arrive within ~1 minute.
 Restore the threshold when done.
+
+### 8. FileBrowser Quantum: first-run admin setup
+
+On first start, visit `https://files.${LAB_DOMAIN}` and log in with the
+default credentials `admin` / `admin`. Immediately:
+
+1. Change the admin password (Settings → Profile Management)
+2. Enable TOTP 2FA (Settings → Profile Management → Two-Factor Authentication)
+
+User management and file permissions are configured through the admin UI.
+Registration is disabled — create additional users manually if needed.
 
 ## Gotchas worth knowing
 

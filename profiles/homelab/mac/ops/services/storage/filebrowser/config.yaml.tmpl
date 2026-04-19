@@ -1,0 +1,33 @@
+server:
+  port: 8080
+  baseURL: "/"
+  cacheDir: /home/filebrowser/data/tmp
+  sources:
+    - path: /srv/repos
+      name: repos
+      config:
+        defaultEnabled: true
+    - path: /srv/services-data
+      name: services-data
+      config:
+        defaultEnabled: true
+
+auth:
+  tokenExpirationHours: 4
+  methods:
+    password:
+      enabled: true
+      signup: false
+
+userDefaults:
+  darkMode: true
+  lockPassword: false
+  permissions:
+    api: true
+    admin: false
+    modify: true
+    share: false
+    realtime: true
+    delete: true
+    create: true
+    download: true

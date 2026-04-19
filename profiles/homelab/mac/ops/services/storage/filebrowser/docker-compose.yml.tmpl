@@ -1,0 +1,23 @@
+services:
+  filebrowser:
+    image: gtstef/filebrowser:1.2.4-stable-slim
+    container_name: filebrowser
+    restart: unless-stopped
+    volumes:
+      - ${SERVICES_DATA_DIR}/filebrowser:/home/filebrowser/data
+      - ./config.yaml:/home/filebrowser/data/config.yaml:ro
+      - ${SERVICES_DATA_DIR}:/srv/services-data:ro
+      - /Users/ops/repos:/srv/repos
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
+    networks:
+      - caddy_proxy
+      - default
+
+networks:
+  caddy_proxy:
+    external: true
