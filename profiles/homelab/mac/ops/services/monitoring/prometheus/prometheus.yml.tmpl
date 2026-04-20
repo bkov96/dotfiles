@@ -15,6 +15,11 @@ scrape_configs:
       - targets:
           - host.docker.internal:9100
 
+  - job_name: macmon
+    static_configs:
+      - targets:
+          - host.docker.internal:9190
+
   - job_name: caddy
     static_configs:
       - targets:

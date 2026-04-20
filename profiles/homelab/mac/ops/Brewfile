@@ -1,4 +1,5 @@
 brew "gettext"
 brew "jq"
+brew "macmon"
 brew "node_exporter"
 cask "orbstack"

@@ -228,7 +228,33 @@ curl -s http://127.0.0.1:9100/metrics | head -5
 
 Expected: a few `# HELP …` lines.
 
-### 6. Telegram monitoring bot (one-time)
+### 6. Native macmon (one-time, on the homelab)
+
+`macmon` monitors Apple Silicon hardware metrics (power, temperature,
+CPU/GPU utilization, frequencies) and exposes them as Prometheus metrics.
+Like `node_exporter`, it runs natively on macOS because it uses private
+IOKit APIs that aren't available from inside containers. It is installed
+by `make ops-install` via the ops `Brewfile`. Start it once after install:
+
+```sh
+macmon serve --port 9190 --interval 1000 --install
+```
+
+This registers a launchd agent that auto-starts on login, serving
+Prometheus metrics on `127.0.0.1:9190`. Prometheus scrapes it via
+`host.docker.internal:9190`.
+
+To verify after install:
+
+```sh
+curl -s http://127.0.0.1:9190/metrics | head -5
+```
+
+Expected: a few `# HELP macmon_…` lines.
+
+To uninstall the launchd agent: `macmon serve --uninstall`.
+
+### 7. Telegram monitoring bot (one-time)
 
 The Grafana alert pipeline uses a **dedicated** bot — separate from any
 existing Uptime Kuma bot — so monitoring noise stays isolated from
@@ -248,12 +274,12 @@ curl "https://api.telegram.org/bot<TOKEN>/getUpdates"
 Find the `chat.id` numeric value in the JSON response. Save it into
 the Bitwarden field `TELEGRAM_CHAT_ID_MONITORING`.
 
-### 7. Grafana: first-run login
+### 8. Grafana: first-run login
 
 On first start, visit `https://monitoring.${LAB_DOMAIN}` and log in as
-`admin` with the password set in `GRAFANA_ADMIN_PASSWORD`. The three
-provisioned dashboards (Node Exporter Full, Prometheus Stats,
-Caddy Monitoring) appear under the "Homelab"
+`admin` with the password set in `GRAFANA_ADMIN_PASSWORD`. The four
+provisioned dashboards (Node Exporter Full, macmon Overview,
+Prometheus Stats, Caddy Monitoring) appear under the "Homelab"
 folder. There is no setup wizard.
 
 Provisioned alert rules and the Telegram contact point appear under
@@ -262,7 +288,7 @@ temporarily to a threshold you are currently exceeding (e.g., HostHighCPU
 threshold to `1`); a Telegram message should arrive within ~1 minute.
 Restore the threshold when done.
 
-### 8. FileBrowser Quantum: first-run admin setup
+### 9. FileBrowser Quantum: first-run admin setup
 
 On first start, visit `https://files.${LAB_DOMAIN}` and log in with the
 default credentials `admin` / `admin`. Immediately:
@@ -293,5 +319,6 @@ Services reference `caddy_proxy` as `external: true` in their compose files. `se
   rollout. Spec lives at
   `docs/superpowers/specs/2026-04-13-grafana-prometheus-monitoring-design.md`.
 - **Per-service exporter for Uptime Kuma** — same spec.
-- **Host temperature metrics via node_exporter textfile collector** — same
-  spec.
+- ~~**Host temperature metrics via node_exporter textfile collector**~~ —
+  superseded by macmon integration (provides CPU/GPU temperature and power
+  metrics natively).
