@@ -5,7 +5,7 @@ export DOTFILES_PLATFORM="mac"
 export DOTFILES_USER="ops"
 
 dotfiles() {
-  local repo=~/repos/dotfiles
+  local repo=~/HomeLab/repos/dotfiles
 
   case "$1" in
     packages|configs|scripts|repo)

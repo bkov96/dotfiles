@@ -126,8 +126,8 @@ SSH into the Mac Mini:
 
 ### 2.1 Clone and initialize
 
-    git clone https://github.com/bkov96/dotfiles.git ~/repos/dotfiles
-    cd ~/repos/dotfiles/profiles/homelab/mac
+    git clone https://github.com/bkov96/dotfiles.git ~/HomeLab/repos/dotfiles
+    cd ~/HomeLab/repos/dotfiles/profiles/homelab/mac
     make ops-init
 
 ### 2.2 Install tools

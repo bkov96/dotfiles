@@ -6,8 +6,7 @@ services:
     volumes:
       - ${SERVICES_DATA_DIR}/filebrowser:/home/filebrowser/data
       - ./config.yaml:/home/filebrowser/data/config.yaml:ro
-      - ${SERVICES_DATA_DIR}:/srv/services-data:ro
-      - /Users/ops/repos:/srv/repos
+      - /Users/ops/HomeLab:/srv/homelab
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
       interval: 30s
