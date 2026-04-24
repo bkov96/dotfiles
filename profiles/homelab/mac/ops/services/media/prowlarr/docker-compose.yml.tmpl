@@ -1,0 +1,19 @@
+services:
+  prowlarr:
+    image: ghcr.io/hotio/prowlarr:release-2.3.5.5327
+    container_name: prowlarr
+    restart: unless-stopped
+    environment:
+      - PUID=501
+      - PGID=20
+      - UMASK=002
+      - TZ=Europe/Budapest
+    volumes:
+      - ${SERVICES_DATA_DIR}/prowlarr:/config
+    networks:
+      - caddy_proxy
+      - default
+
+networks:
+  caddy_proxy:
+    external: true

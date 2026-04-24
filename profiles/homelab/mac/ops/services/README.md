@@ -26,18 +26,18 @@ Docker-based services managed by this repository. All configuration is templated
                                        └────────┬────────┘
                                                 │
                                         caddy_proxy network
-                           ┌────────────────────┼─────────────┐
-                           │                    │             │
-                    ┌──────┴──────┐      ┌──────┴──────┐     │
-                    │  storage/   │      │ monitoring/ │     │
-                    │ FileBrowser │      │ Uptime Kuma │     │
-                    │  Quantum    │      ├─────────────┤     │
-                    └─────────────┘      │  Portainer  │     │
-                                         ├─────────────┤     │
-                                         │  Grafana    │─────┘
-                                         └──────┬──────┘
-                                                │ queries
-                                         ┌──────┴──────┐
+               ┌──────────────┬─────────────────┼─────────────┬──────────────┐
+               │              │                 │             │              │
+        ┌──────┴──────┐┌──────┴──────┐   ┌──────┴──────┐     │       ┌──────┴──────┐
+        │ downloads/  ││  storage/   │   │ monitoring/ │     │       │   media/    │
+        │ qBittorrent ││ FileBrowser │   │ Uptime Kuma │     │       │   Seerr     │
+        └─────────────┘│  Quantum    │   ├─────────────┤     │       │   Radarr    │
+                       └─────────────┘   │  Portainer  │     │       │   Sonarr    │
+                                         ├─────────────┤     │       │   Prowlarr  │
+                                         │  Grafana    │─────┘       │   Bazarr    │
+                                         └──────┬──────┘             │   Jellyfin  │
+                                                │ queries            │   Recyclarr │
+                                         ┌──────┴──────┐             └─────────────┘
                                          │ monitoring/ │
                                          │ Prometheus  │◄── scrapes
                                          └─────────────┘    host metrics
@@ -66,6 +66,10 @@ Docker-based services managed by this repository. All configuration is templated
 | `GRAFANA_ADMIN_PASSWORD`        | Initial Grafana admin password          |
 | `TELEGRAM_BOT_TOKEN_MONITORING` | Token for the dedicated monitoring bot  |
 | `TELEGRAM_CHAT_ID_MONITORING`   | Chat ID that receives Grafana alerts    |
+| `MEDIA_ROOT`                    | Host path for media library             |
+| `QBITTORRENT_PASSWORD`          | qBittorrent web UI admin password       |
+| `RADARR_API_KEY`                | Radarr API key (for Recyclarr)          |
+| `SONARR_API_KEY`                | Sonarr API key (for Recyclarr)          |
 
 When creating `GRAFANA_ADMIN_PASSWORD`, note the following constraint:
 
@@ -298,6 +302,12 @@ default credentials `admin` / `admin`. Immediately:
 
 User management and file permissions are configured through the admin UI.
 Registration is disabled — create additional users manually if needed.
+
+### 10. Media stack: downloads + media services
+
+The media stack (qBittorrent, Prowlarr, Radarr, Sonarr, Bazarr, Jellyfin,
+Seerr, Recyclarr) requires extensive first-launch configuration. See the
+dedicated guide: [Media Stack README](media/README.md).
 
 ## Gotchas worth knowing
 

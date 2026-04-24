@@ -1,0 +1,116 @@
+# Recyclarr configuration — syncs TRaSH Guides quality profiles into Radarr/Sonarr.
+#
+# Based on TRaSH Guides "UHD Bluray + WEB" (Radarr) and "WEB-2160p" (Sonarr),
+# customized with 1080p fallback for ncore.pro content availability.
+#
+# To discover available custom format TRaSH IDs, run:
+#   docker compose run --rm recyclarr list custom-formats radarr
+#   docker compose run --rm recyclarr list custom-formats sonarr
+#
+# TRaSH Guides reference: https://trash-guides.info/
+# Recyclarr config reference: https://recyclarr.dev/wiki/yaml/config-reference/
+
+radarr:
+  movies:
+    base_url: http://radarr:7878
+    api_key: ${RADARR_API_KEY}
+
+    quality_definition:
+      type: movie
+
+    quality_profiles:
+      - name: UHD Bluray + WEB
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Bluray-2160p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Bluray-2160p
+          - name: WEB 2160p
+            qualities:
+              - WEBDL-2160p
+              - WEBRip-2160p
+          - name: Remux-1080p
+          - name: Bluray-1080p
+          - name: WEB 1080p
+            qualities:
+              - WEBDL-1080p
+              - WEBRip-1080p
+
+    custom_formats:
+      # HDR formats — prefer DV and HDR10+
+      - trash_ids:
+          - 923b6abef9b17f937fab56cfcf89e1f1 # DV (w/o HDR fallback) — block
+          - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
+          - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+
+      # Audio — prefer lossless and high-quality formats
+      - trash_ids:
+          - 496f355514737f7d83bf7aa4d24f8169 # TrueHD Atmos
+          - 2f22d89048b01681dde8afe203bf2e95 # DTS X
+          - 417804f7f2c4308c1f4c5d380d4c4475 # ATMOS (undefined)
+          - 1af239278386be2919e1bcee0bde047e # DD+ ATMOS
+          - 3cafb66171b47f226146a0770576870f # TrueHD
+          - dcf3ec6938fa32445f590a4da84256cd # DTS-HD MA
+          - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
+          - e7c2fcae07cbada050a0af3357491d7b # PCM
+        assign_scores_to:
+          - name: UHD Bluray + WEB
+
+      # Note: SDR is NOT blocked — ncore may not always have HDR releases,
+      # and blocking SDR would prevent 1080p fallback from working.
+
+      # Note: Hungarian audio boost is not available as a TRaSH custom format.
+      # Create a "Hungarian" custom format manually in Radarr UI:
+      #   Settings → Custom Formats → Add → Condition: Language = Hungarian
+      #   Then assign it a score of 2000 in the "UHD Bluray + WEB" profile.
+
+sonarr:
+  series:
+    base_url: http://sonarr:8989
+    api_key: ${SONARR_API_KEY}
+
+    quality_definition:
+      type: series
+
+    quality_profiles:
+      - name: WEB-2160p
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: WEB 2160p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: WEB 2160p
+            qualities:
+              - WEBDL-2160p
+              - WEBRip-2160p
+          - name: HDTV-2160p
+          - name: WEB 1080p
+            qualities:
+              - WEBDL-1080p
+              - WEBRip-1080p
+          - name: HDTV-1080p
+
+    custom_formats:
+      # HDR formats — prefer DV and HDR10+
+      - trash_ids:
+          - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback) — block
+          - 7c3a61a9c6cb04f52f1544be6d44a026 # DV Boost
+          - 0c4b99df9206d2cfac3c05ab897dd62a # HDR10+ Boost
+        assign_scores_to:
+          - name: WEB-2160p
+
+      # Note: SDR is NOT blocked — same rationale as Radarr.
+
+      # Note: Hungarian audio boost — create manually in Sonarr UI,
+      # same as described in Radarr section above.

@@ -5,7 +5,10 @@
     "GRAFANA_ADMIN_PASSWORD": "",
     "HOMELAB_IP": "",
     "LAB_DOMAIN": "",
+    "MEDIA_ROOT": "",
+    "RADARR_API_KEY": "",
     "SERVICES_DATA_DIR": "",
+    "SONARR_API_KEY": "",
     "TELEGRAM_BOT_TOKEN_MONITORING": "",
     "TELEGRAM_CHAT_ID_MONITORING": ""
   },

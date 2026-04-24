@@ -1,0 +1,19 @@
+services:
+  recyclarr:
+    image: ghcr.io/recyclarr/recyclarr:8.5.1
+    container_name: recyclarr
+    restart: unless-stopped
+    user: "501:20"
+    environment:
+      - TZ=Europe/Budapest
+      - CRON_SCHEDULE=@daily
+    volumes:
+      - ${SERVICES_DATA_DIR}/recyclarr:/config
+      - ./recyclarr.yml:/config/recyclarr.yml:ro
+    networks:
+      - caddy_proxy
+      - default
+
+networks:
+  caddy_proxy:
+    external: true

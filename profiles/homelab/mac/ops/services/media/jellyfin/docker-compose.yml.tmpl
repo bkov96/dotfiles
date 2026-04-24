@@ -1,0 +1,23 @@
+services:
+  jellyfin:
+    image: jellyfin/jellyfin:10.11.8
+    container_name: jellyfin
+    restart: unless-stopped
+    user: "501:20"
+    ports:
+      - "8096:8096"
+    environment:
+      - TZ=Europe/Budapest
+      - JELLYFIN_PublishedServerUrl=https://jellyfin.media.${LAB_DOMAIN}
+    volumes:
+      - ${SERVICES_DATA_DIR}/jellyfin/config:/config
+      - ${SERVICES_DATA_DIR}/jellyfin/cache:/cache
+      - ${MEDIA_ROOT}/movies:/media/movies:ro
+      - ${MEDIA_ROOT}/series:/media/series:ro
+    networks:
+      - caddy_proxy
+      - default
+
+networks:
+  caddy_proxy:
+    external: true

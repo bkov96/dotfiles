@@ -1,0 +1,20 @@
+services:
+  sonarr:
+    image: ghcr.io/hotio/sonarr:release-4.0.17.2952
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=501
+      - PGID=20
+      - UMASK=002
+      - TZ=Europe/Budapest
+    volumes:
+      - ${SERVICES_DATA_DIR}/sonarr:/config
+      - ${MEDIA_ROOT}:/media
+    networks:
+      - caddy_proxy
+      - default
+
+networks:
+  caddy_proxy:
+    external: true
