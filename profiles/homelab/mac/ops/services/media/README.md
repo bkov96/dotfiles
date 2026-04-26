@@ -34,13 +34,13 @@ graph LR
 
 | Service | Domain | Purpose |
 |---------|--------|---------|
-| Seerr | `media.lab.internal` | Request UI (main entry point) |
-| Radarr | `radarr.media.lab.internal` | Movie management |
-| Sonarr | `sonarr.media.lab.internal` | Series management |
-| Prowlarr | `prowlarr.media.lab.internal` | Indexer manager |
-| Bazarr | `bazarr.media.lab.internal` | Subtitle fetching |
-| Jellyfin | `jellyfin.media.lab.internal` | Media server / library |
-| qBittorrent | `downloads.lab.internal` | Torrent client |
+| Seerr | `media.${LAB_DOMAIN}` | Request UI (main entry point) |
+| Radarr | `radarr.media.${LAB_DOMAIN}` | Movie management |
+| Sonarr | `sonarr.media.${LAB_DOMAIN}` | Series management |
+| Prowlarr | `prowlarr.media.${LAB_DOMAIN}` | Indexer manager |
+| Bazarr | `bazarr.media.${LAB_DOMAIN}` | Subtitle fetching |
+| Jellyfin | `jellyfin.media.${LAB_DOMAIN}` | Media server / library |
+| qBittorrent | `downloads.${LAB_DOMAIN}` | Torrent client |
 | Recyclarr | — | TRaSH Guides config sync (no UI) |
 
 ## Storage layout
@@ -60,8 +60,8 @@ ${MEDIA_ROOT}/
 
 Two wildcard DNS records on the UniFi router, both pointing to the homelab IP:
 
-- `*.lab.internal` → covers `downloads.lab.internal`
-- `*.media.lab.internal` → covers all media service subdomains
+- `*.${LAB_DOMAIN}` → covers `downloads.${LAB_DOMAIN}`
+- `*.media.${LAB_DOMAIN}` → covers all media service subdomains
 
 ## First-launch setup
 
@@ -69,15 +69,11 @@ After `dfs services start`, each service needs one-time manual configuration. Fo
 
 ### 1. qBittorrent
 
-Visit `https://downloads.lab.internal`.
-
-On first start, qBittorrent generates a random admin password. Retrieve it from logs:
+On first start, qBittorrent generates a random admin password and prints it to logs. Retrieve it, then visit `https://downloads.${LAB_DOMAIN}` and log in as `admin`:
 
 ```bash
 docker logs qbittorrent 2>&1 | grep "temporary password"
 ```
-
-Log in with username `admin` and the temporary password, then:
 
 1. **Settings → Web UI → Authentication**: change the admin password. Store the new password in Bitwarden field `QBITTORRENT_PASSWORD` on the `dotfiles/homelab/mac` item (for reference only — not used in templates).
 2. **Settings → Downloads → Default Torrent Management Mode**: set to **Automatic** (required for category save paths to work)
@@ -90,7 +86,7 @@ Log in with username `admin` and the temporary password, then:
 
 ### 2. Radarr
 
-Visit `https://radarr.media.lab.internal`.
+Visit `https://radarr.media.${LAB_DOMAIN}`.
 
 1. **First-run**: create an admin account
 2. **Settings → General → API Key**: copy this key and save it to Bitwarden field `RADARR_API_KEY` on the `dotfiles/homelab/mac` item
@@ -113,7 +109,7 @@ Visit `https://radarr.media.lab.internal`.
 
 ### 3. Sonarr
 
-Visit `https://sonarr.media.lab.internal`.
+Visit `https://sonarr.media.${LAB_DOMAIN}`.
 
 1. **First-run**: create an admin account
 2. **Settings → General → API Key**: copy this key and save it to Bitwarden field `SONARR_API_KEY` on the `dotfiles/homelab/mac` item
@@ -150,7 +146,7 @@ After Radarr and Sonarr API keys are in Bitwarden:
 
 ### 5. Prowlarr
 
-Visit `https://prowlarr.media.lab.internal`.
+Visit `https://prowlarr.media.${LAB_DOMAIN}`.
 
 1. **First-run**: create an admin account (username + password)
 2. **Settings → Indexers → Add Indexer**: search for "ncore"
@@ -168,7 +164,7 @@ Visit `https://prowlarr.media.lab.internal`.
 
 ### 6. Bazarr
 
-Visit `https://bazarr.media.lab.internal`.
+Visit `https://bazarr.media.${LAB_DOMAIN}`.
 
 1. **First-run**: create an admin account
 2. **Settings → Sonarr**: connect to Sonarr
@@ -193,7 +189,7 @@ Visit `https://bazarr.media.lab.internal`.
 
 ### 7. Jellyfin
 
-Visit `https://jellyfin.media.lab.internal`.
+Visit `https://jellyfin.media.${LAB_DOMAIN}`.
 
 1. **First-run wizard**:
    - Create admin user (username + password)
@@ -218,7 +214,7 @@ Visit `https://jellyfin.media.lab.internal`.
 
 ### 8. Seerr
 
-Visit `https://media.lab.internal`.
+Visit `https://media.${LAB_DOMAIN}`.
 
 1. **First-run wizard**:
    - Sign in method: choose Jellyfin
@@ -294,11 +290,11 @@ Jellyfin exposes port 8096 directly (in addition to HTTPS via Caddy) so that Inf
 
 1. Open Infuse on Apple TV
 2. Add Share → **Jellyfin**
-3. Server: `http://jellyfin.media.lab.internal:8096`
+3. Server: `http://jellyfin.media.${LAB_DOMAIN}:8096`
 4. Sign in with your Jellyfin credentials
 5. Libraries should appear automatically
 
-Browser access at `https://jellyfin.media.lab.internal` continues to work through Caddy with HTTPS as before.
+Browser access at `https://jellyfin.media.${LAB_DOMAIN}` continues to work through Caddy with HTTPS as before.
 
 ## Maintenance
 

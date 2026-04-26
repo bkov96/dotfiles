@@ -17,30 +17,17 @@ Docker-based services managed by this repository. All configuration is templated
 
 ## Architecture
 
-```
-                                       HTTPS (port 443)
-                                                │
-                                       ┌────────┴────────┐
-                                       │  network/       │
-                                       │  Caddy (proxy)  │
-                                       └────────┬────────┘
-                                                │
-                                        caddy_proxy network
-               ┌──────────────┬─────────────────┼─────────────┬──────────────┐
-               │              │                 │             │              │
-        ┌──────┴──────┐┌──────┴──────┐   ┌──────┴──────┐     │       ┌──────┴──────┐
-        │ downloads/  ││  storage/   │   │ monitoring/ │     │       │   media/    │
-        │ qBittorrent ││ FileBrowser │   │ Uptime Kuma │     │       │   Seerr     │
-        └─────────────┘│  Quantum    │   ├─────────────┤     │       │   Radarr    │
-                       └─────────────┘   │  Portainer  │     │       │   Sonarr    │
-                                         ├─────────────┤     │       │   Prowlarr  │
-                                         │  Grafana    │─────┘       │   Bazarr    │
-                                         └──────┬──────┘             │   Jellyfin  │
-                                                │ queries            │   Recyclarr │
-                                         ┌──────┴──────┐             └─────────────┘
-                                         │ monitoring/ │
-                                         │ Prometheus  │◄── scrapes
-                                         └─────────────┘    host metrics
+```mermaid
+graph TD
+    Internet[HTTPS :443] --> Caddy[network/Caddy]
+    Caddy -->|caddy_proxy| Downloads[downloads/qBittorrent]
+    Caddy -->|caddy_proxy| Storage[storage/FileBrowser Quantum]
+    Caddy -->|caddy_proxy| Uptime[monitoring/Uptime Kuma]
+    Caddy -->|caddy_proxy| Portainer[monitoring/Portainer]
+    Caddy -->|caddy_proxy| Grafana[monitoring/Grafana]
+    Caddy -->|caddy_proxy| Media[media/Seerr, Radarr, Sonarr,<br/>Prowlarr, Bazarr, Jellyfin, Recyclarr]
+    Grafana -->|queries| Prom[monitoring/Prometheus]
+    Prom -->|scrapes| Host[host: node_exporter + macmon]
 ```
 
 - **DNS** is resolved by the router — no local DNS service needed
@@ -51,7 +38,8 @@ Docker-based services managed by this repository. All configuration is templated
 ## Prerequisites
 
 - OrbStack installed (provides Docker)
-  - On first install, OrbStack must be launched once via the GUI (Screen Sharing / VNC) to complete its initial setup. After that it starts headlessly on boot.
+  - On first install, OrbStack must be launched once via the GUI (Screen Sharing / VNC) to complete its initial setup.
+  - OrbStack is a per-user GUI app, not a system daemon — it only starts after the `ops` user logs in. For unattended boot recovery (e.g., after a power outage), see [Auto-recovery after power loss](#11-auto-recovery-after-power-loss).
   - Docker CLI lives at `~/.orbstack/bin/docker` — interactive shells get it via PATH; non-interactive SSH (e.g., `ssh host 'docker ...'`) must use the full path.
 - `.config.json` populated with `bw://` references (done during `ops-init`)
 - Bitwarden vault unlocked
@@ -165,16 +153,9 @@ Each service stores persistent data in `${SERVICES_DATA_DIR}/<service_name>/`. T
 
 ## Manual setup steps (not repo-managed)
 
-### 1. UniFi: point DHCP DNS at the homelab
+### 1. UniFi: wildcard DNS records
 
-For each VLAN that should use the homelab DNS (and be able to resolve `*.${LAB_DOMAIN}`):
-
-- Settings → Networks → (VLAN) → DHCP settings
-- Uncheck "Auto DNS Server"
-- Add the homelab IP as primary DNS (e.g., `10.0.192.101`)
-- Add the VLAN gateway or a public DNS as fallback
-
-**VLAN30** (homelab) should always point here. Any other VLAN you want to access `*.${LAB_DOMAIN}` from needs the same change.
+The UniFi router resolves `*.${LAB_DOMAIN}` natively. Add wildcard DNS records on the router pointing to the homelab IP — see [Media Stack DNS setup](media/README.md#dns-setup) for the specific records.
 
 ### 2. Trust Caddy's root CA on each device
 
@@ -198,7 +179,10 @@ Trusting on the headless Mac Mini itself requires Screen Sharing (VNC) — `secu
 
 ### 3. Uptime Kuma: create admin user and monitors
 
-Visit `https://uptime.${LAB_DOMAIN}` and complete the setup. Monitor configuration is stored in the service's SQLite DB (not repo-managed).
+Visit `https://uptime.${LAB_DOMAIN}` and complete the setup. Monitor
+configuration is stored in the service's SQLite DB (not repo-managed),
+but the current monitor inventory is documented for restore purposes —
+see [Monitoring README — Uptime Kuma monitor inventory](monitoring/README.md#uptime-kuma--monitor-inventory).
 
 ### 4. Portainer: first-run admin user
 
@@ -308,6 +292,32 @@ Registration is disabled — create additional users manually if needed.
 The media stack (qBittorrent, Prowlarr, Radarr, Sonarr, Bazarr, Jellyfin,
 Seerr, Recyclarr) requires extensive first-launch configuration. See the
 dedicated guide: [Media Stack README](media/README.md).
+
+### 11. Auto-recovery after power loss
+
+For the homelab to come back up unattended after a power outage, four
+layers must all be in place. The Docker layer (compose `restart:
+unless-stopped`) is repo-managed; the other three are macOS settings on
+the Mac Mini that must be configured manually.
+
+| Layer                     | What                                            | How                                                                                                                                                |
+| ------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Hardware power-on         | Mac powers itself on when AC returns            | Run `sudo pmset -a autorestart 1`. Verify with `pmset -g \| grep autorestart` (expect `autorestart  1`).                                           |
+| User session              | `ops` user auto-logs in (no GUI needed at boot) | **System Settings → Users & Groups → Automatically log in as → `ops`**. Requires FileVault to be **off** (verify with `fdesetup status`).          |
+| OrbStack auto-start       | Docker daemon starts when `ops` logs in         | OrbStack menu bar icon → **Settings → System → Start OrbStack at login = ✅**. Or **System Settings → General → Login Items**, click **+**, add `OrbStack.app`. |
+| Container restart policy  | Containers come back when Docker starts         | Already set: every compose template uses `restart: unless-stopped`. No action needed unless adding new services.                                   |
+
+Verify after a reboot from your laptop:
+
+```sh
+ssh ops@homelab '~/.orbstack/bin/docker ps'
+```
+
+Should list running containers. If it errors with "Cannot connect to
+the Docker daemon," OrbStack didn't start — re-check the login item.
+
+Realistic recovery time after power restored: 1–2 minutes to all
+Uptime Kuma monitors green.
 
 ## Gotchas worth knowing
 
