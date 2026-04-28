@@ -14,9 +14,12 @@ services:
     networks:
       - caddy_proxy
       - default
+      - metrics_internal
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
 networks:
   caddy_proxy:
+    external: true
+  metrics_internal:
     external: true

@@ -167,6 +167,10 @@ ensure_networks() {
     docker network create caddy_proxy >/dev/null
     log_item "Created caddy_proxy network"
   fi
+  if ! docker network inspect metrics_internal >/dev/null 2>&1; then
+    docker network create metrics_internal >/dev/null
+    log_item "Created metrics_internal network"
+  fi
 }
 
 # --- Actions ---

@@ -173,3 +173,120 @@ groups:
           summary: "Mac system power > 40W for 10m"
         labels:
           severity: warning
+
+  - orgId: 1
+    name: MediaStackHealth
+    folder: Homelab
+    interval: 1m
+    rules:
+      - uid: library-disk-low
+        title: LibraryDiskLow
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              expr: 'min(sonarr_rootfolder_freespace_bytes) < 50e9 or min(radarr_rootfolder_freespace_bytes) < 50e9'
+              instant: true
+          - refId: C
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [0] }
+        noDataState: NoData
+        execErrState: Error
+        for: 15m
+        annotations:
+          summary: "A media root folder has < 50 GB free for 15m"
+        labels:
+          severity: warning
+
+      - uid: arr-health-issues
+        title: ArrHealthIssues
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              expr: 'sum(sonarr_system_health_issues) + sum(radarr_system_health_issues) + sum(prowlarr_system_health_issues) + sum(bazarr_system_health_issues)'
+              instant: true
+          - refId: C
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [0] }
+        noDataState: NoData
+        execErrState: Error
+        for: 10m
+        annotations:
+          summary: "An *Arr service is reporting health issues"
+        labels:
+          severity: warning
+
+      - uid: qbit-disconnected
+        title: QbitDisconnected
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 300, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              expr: 'qbittorrent_connected'
+              instant: true
+          - refId: C
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [1] }
+        noDataState: NoData
+        execErrState: Error
+        for: 5m
+        annotations:
+          summary: "qBittorrent has been disconnected from peers for 5m"
+        labels:
+          severity: warning
+
+      - uid: bazarr-missing-pileup
+        title: BazarrMissingPileup
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              expr: 'increase(bazarr_subtitles_missing_total[24h])'
+              instant: true
+          - refId: C
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: C
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [20] }
+        noDataState: NoData
+        execErrState: Error
+        for: 24h
+        annotations:
+          summary: "Bazarr missing-subtitles count grew by > 20 in 24h"
+        labels:
+          severity: warning

@@ -24,3 +24,38 @@ scrape_configs:
     static_configs:
       - targets:
           - caddy:2019
+
+  - job_name: exportarr-sonarr
+    static_configs:
+      - targets:
+          - exportarr-sonarr:9707
+
+  - job_name: exportarr-radarr
+    static_configs:
+      - targets:
+          - exportarr-radarr:9708
+
+  - job_name: exportarr-prowlarr
+    static_configs:
+      - targets:
+          - exportarr-prowlarr:9709
+
+  - job_name: exportarr-bazarr
+    static_configs:
+      - targets:
+          - exportarr-bazarr:9710
+
+  - job_name: qbittorrent
+    static_configs:
+      - targets:
+          - qbittorrent-exporter:17871
+
+  - job_name: jellyfin
+    static_configs:
+      - targets:
+          - jellyfin-exporter:9594
+
+  - job_name: seerr
+    static_configs:
+      - targets:
+          - seerr-exporter:9850

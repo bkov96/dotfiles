@@ -1,0 +1,96 @@
+services:
+  exportarr-sonarr:
+    image: ghcr.io/onedr0p/exportarr:v2.3.0
+    container_name: exportarr-sonarr
+    restart: unless-stopped
+    command: ["sonarr"]
+    environment:
+      PORT: "9707"
+      URL: "http://sonarr:8989"
+      APIKEY: ${SONARR_API_KEY}
+      ENABLE_ADDITIONAL_METRICS: "true"
+    networks:
+      - metrics_internal
+
+  exportarr-radarr:
+    image: ghcr.io/onedr0p/exportarr:v2.3.0
+    container_name: exportarr-radarr
+    restart: unless-stopped
+    command: ["radarr"]
+    environment:
+      PORT: "9708"
+      URL: "http://radarr:7878"
+      APIKEY: ${RADARR_API_KEY}
+      ENABLE_ADDITIONAL_METRICS: "true"
+    networks:
+      - metrics_internal
+
+  exportarr-prowlarr:
+    image: ghcr.io/onedr0p/exportarr:v2.3.0
+    container_name: exportarr-prowlarr
+    restart: unless-stopped
+    command: ["prowlarr"]
+    environment:
+      PORT: "9709"
+      URL: "http://prowlarr:9696"
+      APIKEY: ${PROWLARR_API_KEY}
+    networks:
+      - metrics_internal
+
+  exportarr-bazarr:
+    image: ghcr.io/onedr0p/exportarr:v2.3.0
+    container_name: exportarr-bazarr
+    restart: unless-stopped
+    command: ["bazarr"]
+    environment:
+      PORT: "9710"
+      URL: "http://bazarr:6767"
+      APIKEY: ${BAZARR_API_KEY}
+    networks:
+      - metrics_internal
+
+  qbittorrent-exporter:
+    # esanchezm/prometheus-qbittorrent-exporter has no semver tags — only `latest`,
+    # `master`, and per-commit `sha-<short>` tags. Pinning to a specific sha-<short>
+    # tag keeps deploys deterministic; bump intentionally.
+    image: ghcr.io/esanchezm/prometheus-qbittorrent-exporter:sha-3e55078
+    container_name: qbittorrent-exporter
+    restart: unless-stopped
+    environment:
+      QBITTORRENT_HOST: qbittorrent
+      QBITTORRENT_PORT: "8080"
+      QBITTORRENT_USER: admin
+      QBITTORRENT_PASS: ${QBITTORRENT_PASSWORD}
+      EXPORTER_PORT: "17871"
+    networks:
+      - metrics_internal
+
+  jellyfin-exporter:
+    # Note: this image is on Docker Hub, not GHCR.
+    image: rebelcore/jellyfin-exporter:v1.5.0
+    container_name: jellyfin-exporter
+    restart: unless-stopped
+    environment:
+      JELLYFIN_ADDRESS: http://jellyfin:8096
+      JELLYFIN_TOKEN: ${JELLYFIN_API_KEY}
+    networks:
+      - metrics_internal
+
+  seerr-exporter:
+    # Image is published as opspotes/jellyseerr-exporter (a fork of
+    # overseerr-exporter); the binary reads JELLYSEERR_* env vars. We use
+    # `seerr` consistently elsewhere — Jellyseerr the project is deprecated.
+    # Upstream ships amd64-only; Rosetta emulates on Apple Silicon.
+    image: ghcr.io/opspotes/jellyseerr-exporter:1.4.0
+    platform: linux/amd64
+    container_name: seerr-exporter
+    restart: unless-stopped
+    environment:
+      JELLYSEERR_ADDRESS: http://seerr:5055
+      JELLYSEERR_APIKEY: ${SEERR_API_KEY}
+    networks:
+      - metrics_internal
+
+networks:
+  metrics_internal:
+    external: true

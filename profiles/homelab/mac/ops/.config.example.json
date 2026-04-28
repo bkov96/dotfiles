@@ -1,12 +1,17 @@
 {
   "env": {
+    "BAZARR_API_KEY": "",
     "GIT_CONFIG_EMAIL": "",
     "GIT_CONFIG_NAME": "",
     "GRAFANA_ADMIN_PASSWORD": "",
     "HOMELAB_IP": "",
+    "JELLYFIN_API_KEY": "",
     "LAB_DOMAIN": "",
     "MEDIA_ROOT": "",
+    "PROWLARR_API_KEY": "",
+    "QBITTORRENT_PASSWORD": "",
     "RADARR_API_KEY": "",
+    "SEERR_API_KEY": "",
     "SERVICES_DATA_DIR": "",
     "SONARR_API_KEY": "",
     "TELEGRAM_BOT_TOKEN_MONITORING": "",
