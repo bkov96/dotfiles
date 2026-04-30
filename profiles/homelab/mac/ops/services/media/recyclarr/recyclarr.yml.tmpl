@@ -1,13 +1,41 @@
-# Recyclarr configuration — syncs TRaSH Guides quality profiles into Radarr/Sonarr.
+# Recyclarr configuration — syncs TRaSH Guides quality definitions and assigns custom formats
+# to four explicit quality profiles per service.
 #
-# Based on TRaSH Guides "UHD Bluray + WEB" (Radarr) and "WEB-2160p" (Sonarr),
-# customized with 1080p fallback for ncore.pro content availability.
+# Profile layout:
+#   4K HU   — strict 2160p, prefers Hungarian audio
+#   4K Any  — strict 2160p, prefers English / Original audio
+#   HD HU   — 1080p preferred + 720p fallback, prefers Hungarian audio
+#   HD Any  — 1080p preferred + 720p fallback, prefers English / Original audio
+#
+# Strict quality (no fallback inside profiles): if 4K finds nothing on ncore, manually
+# re-assign the item to the matching HD profile in Radarr/Sonarr UI.
+#
+# Language preference is pure-positive: HU / EN / Original are scored up; nothing is rejected.
+#
+# Manual prerequisite — these custom formats MUST be created in the Radarr/Sonarr UI before
+# the first sync, AND their scores set per profile manually. Recyclarr cannot score
+# user-created custom formats (only TRaSH-ID ones).
+#
+#   Radarr (Settings → Custom Formats → Add → Condition: Language = …):
+#     - Hungarian
+#     - English
+#     - Original
+#
+#   Sonarr (same path):
+#     - Hungarian
+#     - English
+#     - Original
+#
+#   Then in Settings → Profiles, set score 2000:
+#     - Hungarian on 4K HU and HD HU (both Radarr & Sonarr)
+#     - English on 4K Any and HD Any (both Radarr & Sonarr)
+#     - Original on 4K Any and HD Any (both Radarr & Sonarr)
 #
 # To discover available custom format TRaSH IDs, run:
 #   docker compose run --rm recyclarr list custom-formats radarr
 #   docker compose run --rm recyclarr list custom-formats sonarr
 #
-# TRaSH Guides reference: https://trash-guides.info/
+# TRaSH Guides reference:    https://trash-guides.info/
 # Recyclarr config reference: https://recyclarr.dev/wiki/yaml/config-reference/
 
 radarr:
@@ -19,38 +47,101 @@ radarr:
       type: movie
 
     quality_profiles:
-      - name: UHD Bluray + WEB
+      - name: 4K HU
         reset_unmatched_scores:
           enabled: true
         upgrade:
           allowed: true
-          until_quality: Bluray-2160p
+          until_quality: Remux-2160p
           until_score: 10000
         min_format_score: 0
         quality_sort: top
         qualities:
+          - name: Remux-2160p
           - name: Bluray-2160p
           - name: WEB 2160p
             qualities:
               - WEBDL-2160p
               - WEBRip-2160p
+
+      - name: 4K Any
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Remux-2160p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Remux-2160p
+          - name: Bluray-2160p
+          - name: WEB 2160p
+            qualities:
+              - WEBDL-2160p
+              - WEBRip-2160p
+
+      - name: HD HU
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Remux-1080p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
           - name: Remux-1080p
           - name: Bluray-1080p
           - name: WEB 1080p
             qualities:
               - WEBDL-1080p
               - WEBRip-1080p
+          - name: HDTV-1080p
+          - name: Bluray-720p
+          - name: WEB 720p
+            qualities:
+              - WEBDL-720p
+              - WEBRip-720p
+          - name: HDTV-720p
+
+      - name: HD Any
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Remux-1080p
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Remux-1080p
+          - name: Bluray-1080p
+          - name: WEB 1080p
+            qualities:
+              - WEBDL-1080p
+              - WEBRip-1080p
+          - name: HDTV-1080p
+          - name: Bluray-720p
+          - name: WEB 720p
+            qualities:
+              - WEBDL-720p
+              - WEBRip-720p
+          - name: HDTV-720p
 
     custom_formats:
-      # HDR formats — prefer DV and HDR10+
+      # HDR / DV — assign to 4K profiles only. SDR is intentionally not blocked so a 4K-SDR
+      # release can still be grabbed when ncore has no HDR option for a given title.
       - trash_ids:
           - 923b6abef9b17f937fab56cfcf89e1f1 # DV (w/o HDR fallback) — block
           - b337d6812e06c200ec9a2d3cfa9d20a7 # DV Boost
           - caa37d0df9c348912df1fb1d88f9273a # HDR10+ Boost
         assign_scores_to:
-          - name: UHD Bluray + WEB
+          - name: 4K HU
+          - name: 4K Any
 
-      # Audio — prefer lossless and high-quality formats
+      # Audio — lossless / spatial. Assign to all four profiles (best-audio preference applies
+      # at any quality tier).
       - trash_ids:
           - 496f355514737f7d83bf7aa4d24f8169 # TrueHD Atmos
           - 2f22d89048b01681dde8afe203bf2e95 # DTS X
@@ -61,15 +152,10 @@ radarr:
           - a570d4a0e56a2874b64e5bfa55202a1b # FLAC
           - e7c2fcae07cbada050a0af3357491d7b # PCM
         assign_scores_to:
-          - name: UHD Bluray + WEB
-
-      # Note: SDR is NOT blocked — ncore may not always have HDR releases,
-      # and blocking SDR would prevent 1080p fallback from working.
-
-      # Note: Hungarian audio boost is not available as a TRaSH custom format.
-      # Create a "Hungarian" custom format manually in Radarr UI:
-      #   Settings → Custom Formats → Add → Condition: Language = Hungarian
-      #   Then assign it a score of 2000 in the "UHD Bluray + WEB" profile.
+          - name: 4K HU
+          - name: 4K Any
+          - name: HD HU
+          - name: HD Any
 
 sonarr:
   series:
@@ -80,37 +166,99 @@ sonarr:
       type: series
 
     quality_profiles:
-      - name: WEB-2160p
+      - name: 4K HU
         reset_unmatched_scores:
           enabled: true
         upgrade:
           allowed: true
-          until_quality: WEB 2160p
+          until_quality: Bluray-2160p Remux
           until_score: 10000
         min_format_score: 0
         quality_sort: top
         qualities:
+          - name: Bluray-2160p Remux
+          - name: Bluray-2160p
           - name: WEB 2160p
             qualities:
               - WEBDL-2160p
               - WEBRip-2160p
           - name: HDTV-2160p
+
+      - name: 4K Any
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Bluray-2160p Remux
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Bluray-2160p Remux
+          - name: Bluray-2160p
+          - name: WEB 2160p
+            qualities:
+              - WEBDL-2160p
+              - WEBRip-2160p
+          - name: HDTV-2160p
+
+      - name: HD HU
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Bluray-1080p Remux
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Bluray-1080p Remux
+          - name: Bluray-1080p
           - name: WEB 1080p
             qualities:
               - WEBDL-1080p
               - WEBRip-1080p
           - name: HDTV-1080p
+          - name: Bluray-720p
+          - name: WEB 720p
+            qualities:
+              - WEBDL-720p
+              - WEBRip-720p
+          - name: HDTV-720p
+
+      - name: HD Any
+        reset_unmatched_scores:
+          enabled: true
+        upgrade:
+          allowed: true
+          until_quality: Bluray-1080p Remux
+          until_score: 10000
+        min_format_score: 0
+        quality_sort: top
+        qualities:
+          - name: Bluray-1080p Remux
+          - name: Bluray-1080p
+          - name: WEB 1080p
+            qualities:
+              - WEBDL-1080p
+              - WEBRip-1080p
+          - name: HDTV-1080p
+          - name: Bluray-720p
+          - name: WEB 720p
+            qualities:
+              - WEBDL-720p
+              - WEBRip-720p
+          - name: HDTV-720p
 
     custom_formats:
-      # HDR formats — prefer DV and HDR10+
+      # HDR / DV — 4K profiles only.
       - trash_ids:
           - 9b27ab6498ec0f31a3353992e19434ca # DV (w/o HDR fallback) — block
           - 7c3a61a9c6cb04f52f1544be6d44a026 # DV Boost
           - 0c4b99df9206d2cfac3c05ab897dd62a # HDR10+ Boost
         assign_scores_to:
-          - name: WEB-2160p
+          - name: 4K HU
+          - name: 4K Any
 
-      # Note: SDR is NOT blocked — same rationale as Radarr.
-
-      # Note: Hungarian audio boost — create manually in Sonarr UI,
-      # same as described in Radarr section above.
+      # Audio CFs intentionally not assigned to Sonarr profiles — series releases on ncore
+      # rarely carry lossless / Atmos markers, so the scoring noise isn't worth it.
