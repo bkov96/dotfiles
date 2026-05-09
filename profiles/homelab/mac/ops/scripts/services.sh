@@ -90,7 +90,15 @@ load_env() {
     export "$key=$value"
   done
 
+  # Derive MEDIA_VOLUME from MEDIA_ROOT (volume mount = parent of media library).
+  # Used in Grafana provisioning to filter node_exporter mountpoint labels.
+  if [ -n "$MEDIA_ROOT" ]; then
+    MEDIA_VOLUME="${MEDIA_ROOT%/*}"
+    export MEDIA_VOLUME
+  fi
+
   ENVSUBST_VARS=$(jq -r '.env // {} | keys[] | "$" + .' "$PROFILE_DIR/.config.json" | tr '\n' ' ')
+  ENVSUBST_VARS="$ENVSUBST_VARS \$MEDIA_VOLUME"
 }
 
 # Render all .tmpl files in a service directory and its subdirectories

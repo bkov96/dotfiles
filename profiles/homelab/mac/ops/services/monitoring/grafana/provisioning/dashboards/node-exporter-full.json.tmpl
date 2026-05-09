@@ -571,12 +571,20 @@
           "repeat": null,
           "seriesOverrides": [
             {
-              "alias": "used",
+              "alias": "internal used",
               "color": "#E0B400"
             },
             {
-              "alias": "available",
+              "alias": "internal available",
               "color": "#73BF69"
+            },
+            {
+              "alias": "external used",
+              "color": "#FF780A"
+            },
+            {
+              "alias": "external available",
+              "color": "#37872D"
             }
           ],
           "spaceLength": 10,
@@ -588,15 +596,29 @@
               "expr": "sum(\n  max by (device) (\n    node_filesystem_size_bytes{job=\"node\", instance=\"$instance\", mountpoint=\"/\"}\n  -\n    node_filesystem_avail_bytes{job=\"node\", instance=\"$instance\", mountpoint=\"/\"}\n  )\n)\n",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "used",
+              "legendFormat": "internal used",
               "refId": "A"
             },
             {
               "expr": "sum(\n  max by (device) (\n    node_filesystem_avail_bytes{job=\"node\", instance=\"$instance\", mountpoint=\"/\"}\n  )\n)\n",
               "format": "time_series",
               "intervalFactor": 2,
-              "legendFormat": "available",
+              "legendFormat": "internal available",
               "refId": "B"
+            },
+            {
+              "expr": "sum(\n  max by (device) (\n    node_filesystem_size_bytes{job=\"node\", instance=\"$instance\", mountpoint=~\"${MEDIA_VOLUME}.*\"}\n  -\n    node_filesystem_avail_bytes{job=\"node\", instance=\"$instance\", mountpoint=~\"${MEDIA_VOLUME}.*\"}\n  )\n)\n",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "external used",
+              "refId": "C"
+            },
+            {
+              "expr": "sum(\n  max by (device) (\n    node_filesystem_avail_bytes{job=\"node\", instance=\"$instance\", mountpoint=~\"${MEDIA_VOLUME}.*\"}\n  )\n)\n",
+              "format": "time_series",
+              "intervalFactor": 2,
+              "legendFormat": "external available",
+              "refId": "D"
             }
           ],
           "thresholds": [],

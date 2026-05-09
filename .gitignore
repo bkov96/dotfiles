@@ -77,4 +77,6 @@ profiles/homelab/mac/ops/services/*/docker-compose.yml
 profiles/homelab/mac/ops/services/caddy/Caddyfile
 profiles/homelab/mac/ops/services/caddy/routes/*
 !profiles/homelab/mac/ops/services/caddy/routes/.gitkeep
-profiles/homelab/mac/ops/services/grafana/provisioning/alerting/contact-points.yml
+profiles/homelab/mac/ops/services/monitoring/grafana/provisioning/alerting/contact-points.yml
+profiles/homelab/mac/ops/services/monitoring/grafana/provisioning/alerting/alert-rules.yml
+profiles/homelab/mac/ops/services/monitoring/grafana/provisioning/dashboards/node-exporter-full.json
