@@ -349,10 +349,18 @@ To free space: remove old torrents from qBittorrent's web UI. The library copy r
 
 ### Moving to external HDD
 
-1. Update `MEDIA_ROOT` in Bitwarden to the new mount path (e.g., `/Volumes/MediaHDD/media`)
-2. Copy or move existing media: `rsync -avH ${OLD_PATH}/ ${NEW_PATH}/` (the `-H` flag preserves hardlinks)
-3. Re-render templates: `dfs services init`
-4. Restart all media + download services: `dfs services restart`
+The full procedure (drive prep, mount stability, hardlink-preserving copy, smoke tests, rollback) is documented in the design spec. The TL;DR:
+
+1. Stop services that touch `${MEDIA_ROOT}` (qbit, arrs, bazarr, jellyfin, recyclarr, seerr).
+2. `rsync -avH /Users/ops/HomeLab/media/ /Volumes/<NewDrive>/media/` — `-H` preserves hardlinks.
+3. Verify file counts, sizes, and a sample hardlink chain on the destination.
+4. Update `MEDIA_ROOT` in Bitwarden to the new path; `dfs services init && dfs services restart`.
+5. Smoke-test qBittorrent (no "Missing files"), Radarr/Sonarr (free space reflects new drive), Jellyfin (library scan + sample play).
+6. Wait a few days, then `rm -rf` the old `${MEDIA_ROOT}`.
+
+**Before step 4, pre-grant OrbStack access to the new drive:** System Settings → Privacy & Security → Files and Folders → OrbStack → toggle on "Removable Volumes". The first container bind-mount under `/Volumes/` triggers a TCC prompt; if you're on SSH or the GUI is minimized, OrbStack's daemon will block waiting for consent and `docker ps` / `orb status` / `dfs services start` will all hang silently. If that happens mid-run, open the OrbStack GUI on the mini's display — the prompt is sitting there waiting for an Allow click.
+
+See `docs/superpowers/specs/<latest-external-hdd-migration-design>.md` for the full step-by-step including macOS-specific gotchas (volume rename collision, ownership, Spotlight indexing, energy settings).
 
 ### Recyclarr updates
 

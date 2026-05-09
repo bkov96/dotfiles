@@ -7,6 +7,7 @@ services:
       - ${SERVICES_DATA_DIR}/filebrowser:/home/filebrowser/data
       - ./config.yaml:/home/filebrowser/data/config.yaml:ro
       - /Users/ops/HomeLab:/srv/homelab
+      - ${MEDIA_ROOT}:/srv/media
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/health"]
       interval: 30s

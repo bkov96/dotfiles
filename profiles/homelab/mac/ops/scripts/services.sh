@@ -26,6 +26,9 @@ CADDY_ROUTES_DIR="$SERVICES_DIR/network/caddy/routes"
 
 INFRA_SERVICES="caddy"
 
+# Services that bind-mount ${MEDIA_ROOT} and require the drive to be present
+MEDIA_SERVICES="qbittorrent radarr sonarr bazarr jellyfin recyclarr seerr"
+
 # --- Helpers ---
 
 # List all service directory names (any dir containing docker-compose.yml.tmpl)
@@ -173,6 +176,25 @@ ensure_networks() {
   fi
 }
 
+# Verify MEDIA_ROOT is mounted and looks like a real media library.
+# Called before starting any service that bind-mounts ${MEDIA_ROOT}.
+check_media_root() {
+  _svc="$1"
+  for media_svc in $MEDIA_SERVICES; do
+    if [ "$_svc" = "$media_svc" ]; then
+      if [ -z "$MEDIA_ROOT" ]; then
+        log_error "MEDIA_ROOT is not set. Check .config.json."
+        exit 1
+      fi
+      if [ ! -d "$MEDIA_ROOT/movies" ]; then
+        log_error "MEDIA_ROOT=$MEDIA_ROOT does not contain movies/ — external drive not mounted? Refusing to start $_svc."
+        exit 1
+      fi
+      return 0
+    fi
+  done
+}
+
 # --- Actions ---
 
 do_init() {
@@ -195,6 +217,7 @@ do_start() {
   log_header "Starting $_svc..."
   validate_service "$_svc"
   load_env
+  check_media_root "$_svc"
   ensure_networks
   create_data_dir "$_svc"
   render_templates "$_svc"
