@@ -3,6 +3,7 @@ brew "azure-cli"
 brew "bitwarden-cli"
 brew "chezmoi"
 brew "chmlib"
+brew "dotnet"
 brew "dotnet@8"
 brew "git-lfs"
 brew "gitleaks"
@@ -38,6 +39,8 @@ cask "telegram"
 cask "visual-studio-code"
 cask "vlc"
 cask "warp"
+mas "Infuse", id: 1136220934
+mas "Mini Motorways", id: 1456188526
 mas "Moom Classic", id: 419330170
 mas "Numbers", id: 361304891
 mas "Pages", id: 361309726
@@ -51,7 +54,6 @@ vscode "drblury.protobuf-vsc"
 vscode "eamodio.gitlens"
 vscode "eriklynd.json-tools"
 vscode "esbenp.prettier-vscode"
-vscode "github.copilot-chat"
 vscode "hashicorp.hcl"
 vscode "hashicorp.terraform"
 vscode "hediet.vscode-drawio"
