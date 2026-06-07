@@ -45,6 +45,9 @@ for src in "$DOTFILES_DIR"/.*; do
   fi
 
   if echo "$filename" | grep -q '\.tmpl$'; then
+    # Remove a stale symlink so the render replaces it instead of
+    # writing through it into the repo (e.g. after a symlink → template switch)
+    if [ -L "$dest" ]; then rm "$dest"; fi
     envsubst "$ENVSUBST_VARS" <"$src" >"$dest"
     log_item "Rendered $filename → $dest"
   else

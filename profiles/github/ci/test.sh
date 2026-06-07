@@ -37,6 +37,14 @@ assert_symlink() {
   if [ -L "$1" ]; then ok "$2"; else ko "$2"; fi
 }
 
+assert_regular_file() {
+  if [ -f "$1" ] && [ ! -L "$1" ]; then ok "$2"; else ko "$2"; fi
+}
+
+assert_not_exists() {
+  if [ ! -e "$1" ] && [ ! -L "$1" ]; then ok "$2"; else ko "$2"; fi
+}
+
 assert_no_diff() {
   if diff -q "$1" "$2" >/dev/null 2>&1; then ok "$3"; else
     ko "$3"
@@ -66,6 +74,23 @@ assert_contains "test@example.com" "$TEST_HOME/.testconfig" "link: template rend
 assert_not_contains "\${TEST_NAME}" "$TEST_HOME/.testconfig" "link: name placeholder substituted"
 assert_not_contains "\${TEST_EMAIL}" "$TEST_HOME/.testconfig" "link: email placeholder substituted"
 assert_symlink "$TEST_HOME/.testrc" "link: .testrc is a symlink"
+
+# ---------------------------------------------------------------
+log_header "Test: link (template dest replaces stale symlink)"
+
+# Simulate switching a dotfile from symlink mode to template mode: the
+# destination still holds a stale symlink pointing into the repo. Rendering
+# must replace the symlink, not write through it into the repo.
+STRAY="$REPO_DIR/$DOTFILES_DIR/.testconfig"
+rm -f "$TEST_HOME/.testconfig"
+ln -s "$STRAY" "$TEST_HOME/.testconfig"
+
+sh lib/link.sh "$PROFILE_DIR" "$DOTFILES_DIR"
+
+assert_regular_file "$TEST_HOME/.testconfig" "link: stale symlink replaced by rendered file"
+assert_contains "TestUser" "$TEST_HOME/.testconfig" "link: rendered file has substituted content"
+assert_not_exists "$STRAY" "link: no rendered file leaked into repo"
+rm -f "$STRAY"
 
 # ---------------------------------------------------------------
 log_header "Test: gather (round-trip idempotency)"

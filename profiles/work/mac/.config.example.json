@@ -4,13 +4,15 @@
     "GIT_CONFIG_NAME": "",
     "HOMELAB_HOST": "",
     "SSH_PRIVATE_KEY_B64": "",
-    "SSH_PUBLIC_KEY_B64": ""
+    "SSH_PUBLIC_KEY_B64": "",
+    "GITHUB_PACKAGES_USER": "",
+    "GITHUB_PACKAGES_TOKEN": ""
   },
   "paths": {
     ".gitconfig.tmpl": "~/.gitconfig",
     ".ssh_config.tmpl": "~/.ssh/config",
     ".ssh_id_ed25519_homelab.tmpl": "~/.ssh/id_ed25519_homelab",
     ".ssh_id_ed25519_homelab.pub.tmpl": "~/.ssh/id_ed25519_homelab.pub",
-    ".zshrc": "~/.zshrc"
+    ".zshrc.tmpl": "~/.zshrc"
   }
 }

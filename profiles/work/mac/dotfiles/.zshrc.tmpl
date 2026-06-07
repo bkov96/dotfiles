@@ -3,6 +3,9 @@
 export DOTFILES_PROFILE="work"
 export DOTFILES_PLATFORM="mac"
 
+export GITHUB_PACKAGES_USER="${GITHUB_PACKAGES_USER}"
+export GITHUB_PACKAGES_TOKEN="${GITHUB_PACKAGES_TOKEN}"
+
 dotfiles() {
   local repo=~/repos/dotfiles
 
@@ -47,5 +50,5 @@ alias dfs="dotfiles"
 
 source $(brew --prefix nvm)/nvm.sh
 
-export PATH="/opt/homebrew/opt/kubelogin:/opt/homebrew/opt/dotnet@8/bin:$PATH"
+export PATH="/opt/homebrew/opt/kubelogin:$PATH"
 export PATH="$HOME/.dotnet/tools:$PATH"
