@@ -9,10 +9,13 @@
     "GITHUB_PACKAGES_TOKEN": ""
   },
   "paths": {
+    ".atuin.toml": "~/.config/atuin/config.toml",
+    ".ghostty_config": "~/.config/ghostty/config",
     ".gitconfig.tmpl": "~/.gitconfig",
     ".ssh_config.tmpl": "~/.ssh/config",
     ".ssh_id_ed25519_homelab.tmpl": "~/.ssh/id_ed25519_homelab",
     ".ssh_id_ed25519_homelab.pub.tmpl": "~/.ssh/id_ed25519_homelab.pub",
+    ".starship.toml": "~/.config/starship.toml",
     ".zshrc.tmpl": "~/.zshrc"
   }
 }

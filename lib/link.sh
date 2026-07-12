@@ -44,6 +44,8 @@ for src in "$DOTFILES_DIR"/.*; do
     dest="$default_dest"
   fi
 
+  mkdir -p "$(dirname "$dest")"
+
   if echo "$filename" | grep -q '\.tmpl$'; then
     # Remove a stale symlink so the render replaces it instead of
     # writing through it into the repo (e.g. after a symlink → template switch)

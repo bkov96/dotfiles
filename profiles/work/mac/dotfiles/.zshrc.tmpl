@@ -52,3 +52,36 @@ source $(brew --prefix nvm)/nvm.sh
 
 export PATH="/opt/homebrew/opt/kubelogin:$PATH"
 export PATH="$HOME/.dotnet/tools:$PATH"
+
+# Interactive shell enhancements (Warp replacement)
+
+# Completion system (proper default tab-completion)
+autoload -Uz compinit && compinit -u
+
+# Inline autosuggestions (accept with →)
+source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
+# Smart history search (Ctrl-R); local-only, sync opt-in later
+eval "$(atuin init zsh --disable-up-arrow)"
+
+# Prompt
+eval "$(starship init zsh)"
+
+# Ctrl-G: turn the command line into a shell command via Claude Code (uses subscription)
+_claude_cmd() {
+  [ -z "$BUFFER" ] && return
+  local desc="$BUFFER" out
+  BUFFER="… asking claude"; zle -R
+  out=$(claude -p "Translate to a single zsh command for macOS. \
+Output ONLY the command, no prose, no markdown, no code fences: $desc" \
+    --model claude-haiku-4-5-20251001 2>/dev/null \
+    | sed -e '/^[[:space:]]*```/d' -e '/^[[:space:]]*$/d')
+  # Preserve the typed text if claude returned nothing (network/error)
+  [ -n "$out" ] && BUFFER="$out" || BUFFER="$desc"
+  CURSOR=${#BUFFER}; zle -R
+}
+zle -N _claude_cmd
+bindkey '^g' _claude_cmd
+
+# Syntax highlighting — MUST be sourced last
+source "$(brew --prefix)/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
