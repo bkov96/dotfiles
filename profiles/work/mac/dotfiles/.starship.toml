@@ -9,3 +9,16 @@ truncate_to_repo = true
 [cmd_duration]
 min_time = 2000
 format = "took [$duration](bold yellow) "
+
+[kubernetes]
+disabled = false
+symbol = "☸ "
+format = 'on [$symbol$context( \($namespace\))]($style) '
+style = "cyan bold"
+# Only show in Kubernetes-related directories (not on every prompt).
+detect_files = ['Chart.yaml', 'Chart.lock', 'kustomization.yaml', 'skaffold.yaml', 'Tiltfile', 'devspace.yaml']
+detect_folders = ['chart', 'charts', 'helm', '.helm', 'k8s', 'kubernetes', 'manifests', 'deploy']
+
+[[kubernetes.contexts]]
+context_pattern = ".*prod.*"
+style = "bold red"

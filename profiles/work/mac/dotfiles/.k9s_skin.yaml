@@ -1,0 +1,51 @@
+# Transparent k9s skin — inherits the terminal (Ghostty / Desert) colors.
+# https://k9scli.io/topics/skins/
+k9s:
+  body:
+    fgColor: default
+    bgColor: default
+    logoColor: default
+  prompt:
+    fgColor: default
+    bgColor: default
+  info:
+    fgColor: default
+    sectionColor: default
+  frame:
+    border:
+      fgColor: default
+      focusColor: default
+    title:
+      fgColor: default
+      bgColor: default
+      highlightColor: default
+      counterColor: default
+    menu:
+      fgColor: default
+      keyColor: default
+    crumbs:
+      fgColor: default
+      bgColor: default
+      activeColor: default
+    status:
+      newColor: default
+      modifyColor: default
+      addColor: default
+      errorColor: default
+      highlightColor: default
+      killColor: default
+      completedColor: default
+  views:
+    table:
+      fgColor: default
+      bgColor: default
+      header:
+        fgColor: default
+        bgColor: default
+    logs:
+      fgColor: default
+      bgColor: default
+    yaml:
+      keyColor: default
+      colonColor: default
+      valueColor: default

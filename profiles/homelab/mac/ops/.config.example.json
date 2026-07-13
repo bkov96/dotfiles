@@ -19,6 +19,7 @@
   },
   "paths": {
     ".gitconfig.tmpl": "~/.gitconfig",
+    ".starship.toml": "~/.config/starship.toml",
     ".zshrc": "~/.zshrc"
   }
 }

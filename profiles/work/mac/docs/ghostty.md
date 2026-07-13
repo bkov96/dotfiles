@@ -11,8 +11,9 @@ plugins + a few tools), wired up in `.zshrc`. So this doc covers two halves:
 1. **Ghostty itself** — appearance + keybinds
 2. **The zsh layer** — the Warp-replacement features
 
-Everything is reproducible from this repo — no manual clicking. See
-[How it's wired](#-how-its-wired) at the bottom.
+Almost everything is reproducible from this repo; a few one-time macOS toggles
+are listed under [Manual steps on a new machine](#manual-steps-on-a-new-machine).
+See [How it's wired](#-how-its-wired) near the bottom.
 
 ---
 
@@ -40,13 +41,15 @@ Config lives at `~/.config/ghostty/config` (symlinked from
 
 ```
 font-family = JetBrainsMono Nerd Font   # must be a Nerd Font for prompt glyphs
-font-size = 16
-theme = Catppuccin Mocha                # any of ~460 built-in themes
+font-size = 15
+theme = Desert                          # any of ~460 built-in themes (browse: +list-themes)
 cursor-style = block
 mouse-hide-while-typing = true          # hide the pointer while typing
 window-padding-x = 8                    # breathing room, in px
 window-padding-y = 8
 macos-option-as-alt = true              # ⌥ sends Alt (needed for some CLIs / word-jumps)
+shell-integration-features = ssh-env,ssh-terminfo   # SSH terminfo fix (see SSH section)
+window-save-state = always              # restore tabs/splits on relaunch (see Manual steps)
 ```
 
 ### Changing the theme
@@ -193,7 +196,8 @@ on first launch).
 
 ## 🔧 How it's wired
 
-Everything flows through this repo's standard machinery — no manual setup.
+Almost everything flows through this repo's standard machinery; a few one-time
+macOS toggles are listed under [Manual steps](#manual-steps-on-a-new-machine).
 
 | File | Role |
 | --- | --- |
@@ -220,4 +224,137 @@ Everything flows through this repo's standard machinery — no manual setup.
 ### Reproducing on a fresh machine
 
 `dfs packages install` (installs the Brewfile) then `dfs configs link` (links +
-renders everything). Done.
+renders everything) — then the one-time Manual steps below.
+
+### Manual steps on a new machine
+
+Things the repo can't set for you (macOS toggles / one-time actions):
+
+- **Window restore:** macOS **System Settings → Desktop & Dock → "Close windows
+  when quitting an application" must be OFF**, or `window-save-state = always`
+  can't restore your tabs/splits on relaunch.
+- **Default terminal:** macOS has no global "default terminal" setting for
+  third-party apps — just use/pin Ghostty (some tools honor `$TERMINAL`).
+- **SSH terminfo:** the first `ssh` to a host auto-installs Ghostty's terminfo
+  there (cached after; needs `infocmp`/`tic` on the remote). Inspect with
+  `ghostty +ssh-cache`.
+- **Bitwarden:** `dfs configs link` needs Bitwarden unlocked to render secrets
+  into `~/.zshrc` / `~/.gitconfig`.
+- **k9s skin:** activated by seeding `~/.config/k9s/config.yaml` on the first
+  `configs link` (automatic; k9s owns that file afterward).
+
+---
+
+## 🛠 Modern CLI tools
+
+Classic commands, upgraded. Installed via the Brewfile; `ls`/`cat` are aliased,
+`cd` is augmented with `z`, and git diffs render through delta.
+
+| Command | Tool | What it does |
+| --- | --- | --- |
+| `ls` / `ll` / `la` | eza | File listing with icons, colors, and (for `ll`/`la`) a git-status column |
+| `cat <file>` | bat | Prints a file with syntax highlighting + line numbers |
+| `z <dir>` | zoxide | Jumps to a directory you've visited before, by partial name — e.g. `z dotfiles`. Plain `cd` still works. |
+| `fd <name>` | fd | Finds files/dirs by name (fast, no arcane syntax) — e.g. `fd Brewfile` |
+| `rg <pattern>` | ripgrep | Searches file *contents* fast — e.g. `rg "TODO"` |
+| `git diff` / `git log -p` | delta | Colored, line-numbered diffs in the terminal. `n`/`N` jump between files. CLI only — Fork/GitLens are unaffected. |
+
+Examples:
+
+    $ ll
+     src    README.md  M
+     lib    Makefile
+
+    $ z dot        # → jumps to ~/repos/dotfiles
+    $ rg "brew \"" profiles/work/mac/Brewfile
+    $ fd -e md profiles/work/mac    # all .md files under the profile
+
+All are plain Homebrew binaries — remove a line and re-link to undo any of them.
+
+---
+
+## ⌨️ Line editing & selection
+
+Command-line editing keys (these work on the current command line, not
+scrollback — scrollback selection is still mouse-driven):
+
+| Keys | Action |
+| --- | --- |
+| `Opt+←` / `Opt+→` | Move by word |
+| `Opt+⌫` | Delete previous word |
+| `Shift+←` / `Shift+→` | Select by character |
+| `Shift+Opt+←` / `Shift+Opt+→` | Select by word |
+| `Shift+Home` / `Shift+End` | Select to start / end of line |
+| type / `⌫` / `Del` (with a selection) | Replace the selection |
+
+Selection is provided by a vendored MIT widget
+(`~/.config/zsh/shift-select.zsh`, from
+[jirutka/zsh-shift-select](https://github.com/jirutka/zsh-shift-select)).
+
+## 🔐 SSH
+
+Ghostty advertises `TERM=xterm-ghostty`. Remote hosts that don't have that
+terminfo entry will mis-render your shell (ghost characters, broken backspace
+and arrows). The config enables Ghostty's built-in fix:
+
+    shell-integration-features = ssh-env,ssh-terminfo
+
+- `ssh-terminfo` installs Ghostty's terminfo on the remote (via `infocmp`/`tic`)
+  on first login, then caches it so later logins are instant.
+- `ssh-env` sets `TERM`, falling back to `xterm-256color` if terminfo install fails.
+
+Inspect/manage which hosts got the terminfo with `ghostty +ssh-cache`.
+
+---
+
+## 🔎 Fuzzy finding (fzf + fzf-tab)
+
+[fzf](https://github.com/junegunn/fzf) is a fuzzy picker: type a few letters
+from anywhere in a name to filter a list, arrow to a match, Enter to pick.
+
+| Keys | Action |
+| --- | --- |
+| `Ctrl-T` | Fuzzy-pick a file; the path is inserted at the cursor |
+| `Alt-C` | Fuzzy-pick a subdirectory and `cd` into it |
+| `Ctrl-R` | Unchanged — still Atuin history (fzf's own Ctrl-R is overridden) |
+
+`fzf-tab` upgrades the **Tab** key into a searchable menu:
+
+    git checkout <Tab>   → searchable list of branches
+    cd <Tab>             → searchable dir list, with a folder preview (via eza)
+    git add <Tab>        → searchable list of changed files
+
+Type to filter, arrows to move, Enter to accept, Esc to cancel.
+
+---
+
+## ☸ Kubernetes / Azure
+
+When the **current directory** contains a Kubernetes marker — a `chart`/`charts`/
+`helm`/`k8s`/`kubernetes`/`manifests`/`deploy` folder, or a `Chart.yaml`/
+`kustomization.yaml`/`skaffold.yaml`/`Tiltfile` file — the prompt shows your
+current cluster + namespace: `☸ <context> (<namespace>)`. Any context whose name
+matches `prod` is shown in **bold red** as a wrong-cluster safeguard.
+
+> Starship checks the current directory's own contents (not the whole repo tree),
+> so it shows at a repo root that holds a `chart/` folder and inside that folder,
+> but not in unrelated source subdirectories. Adjust the triggers via
+> `detect_files`/`detect_folders` in `~/.config/starship.toml`.
+
+| Command | Does |
+| --- | --- |
+| `kc` | alias for `kubectl` |
+| `kcx` | alias for `kubectx` — switch cluster (fuzzy list via fzf) |
+| `kcn` | alias for `kubens` — switch namespace (fuzzy list via fzf) |
+
+Completions follow the aliases automatically (zsh expands them before
+completing), so `kc get <Tab>`, `az <Tab>`, `helm <Tab>` all give rich,
+searchable menus via **carapace** + fzf-tab. carapace uses a `zsh` bridge, so
+any command it doesn't natively cover falls back to your normal completions.
+
+### k9s — terminal cluster dashboard
+
+Run `k9` (or `k9s`) for an interactive TUI over the current cluster: browse pods,
+tail logs (`l`), shell in (`s`), delete, describe, switch resources with `:pods`
+/ `:deploy` etc. Its colors follow your terminal theme (transparent skin at
+`~/.config/k9s/skins/ghostty.yaml`).

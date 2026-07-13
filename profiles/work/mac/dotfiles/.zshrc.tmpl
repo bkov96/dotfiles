@@ -43,8 +43,19 @@ dotfiles() {
 
 # Aliases
 
-alias ll="ls -l"
+# Modern CLI replacements
+alias ls="eza --icons --group-directories-first"
+alias ll="eza --icons --group-directories-first -l --git"
+alias la="eza --icons --group-directories-first -la --git"
+alias cat="bat --paging=never"
+
 alias dfs="dotfiles"
+
+# Kubernetes shortcuts (completions follow via zsh alias expansion)
+alias kc=kubectl
+alias kcx=kubectx
+alias kcn=kubens
+alias k9=k9s
 
 # Other configurations
 
@@ -58,8 +69,27 @@ export PATH="$HOME/.dotnet/tools:$PATH"
 # Completion system (proper default tab-completion)
 autoload -Uz compinit && compinit -u
 
+# Rich cross-CLI completions (kubectl, az, helm, ...). zsh bridge falls back to native.
+export CARAPACE_BRIDGES='zsh'
+source <(carapace _carapace)
+
+# kubectl: native (dynamic) completion — offers live pod names for logs/exec/etc.
+# Sourced after carapace so it wins for kubectl; `kc` alias inherits it via compdef.
+source <(kubectl completion zsh)
+compdef kc=kubectl
+
+# Fuzzy Tab-completion menu (load after compinit, before autosuggestions/fsh)
+source "$(brew --prefix)/share/fzf-tab/fzf-tab.zsh"
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+
+# Smarter cd: `z <dir>` jumps to a frequent dir; plain `cd` still works
+eval "$(zoxide init zsh)"
+
 # Inline autosuggestions (accept with →)
 source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
+# Fuzzy finder keys: Ctrl-T (files), Alt-C (cd). Ctrl-R stays Atuin (initialized next).
+eval "$(fzf --zsh)"
 
 # Smart history search (Ctrl-R); local-only, sync opt-in later
 eval "$(atuin init zsh --disable-up-arrow)"
@@ -82,6 +112,15 @@ Output ONLY the command, no prose, no markdown, no code fences: $desc" \
 }
 zle -N _claude_cmd
 bindkey '^g' _claude_cmd
+
+# Word-wise movement/deletion (Opt+arrows, Opt+Backspace)
+bindkey "^[[1;3C" forward-word        # Opt+Right
+bindkey "^[[1;3D" backward-word       # Opt+Left
+bindkey "^[^?"    backward-kill-word  # Opt+Backspace
+
+# Shift-select: Shift+arrows select text; Shift+Opt+arrows select by word.
+# Typing or Backspace/Delete replaces the selection.
+source "$HOME/.config/zsh/shift-select.zsh"
 
 # Syntax highlighting — MUST be sourced last
 source "$(brew --prefix)/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"

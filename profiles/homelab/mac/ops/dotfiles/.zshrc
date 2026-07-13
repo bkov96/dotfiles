@@ -53,3 +53,6 @@ dotfiles() {
 
 alias ll="ls -l"
 alias dfs="dotfiles"
+
+# Prompt
+eval "$(starship init zsh)"

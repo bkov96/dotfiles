@@ -59,4 +59,16 @@ if [ -f "$HOME/.ssh/id_ed25519_homelab.pub" ]; then
   log_ok "Set permissions on ~/.ssh/id_ed25519_homelab.pub"
 fi
 
+# Seed k9s skin selection once; k9s owns config.yaml afterward (it's stateful).
+K9S_CFG="$HOME/.config/k9s/config.yaml"
+if [ ! -f "$K9S_CFG" ]; then
+  mkdir -p "$(dirname "$K9S_CFG")"
+  cat >"$K9S_CFG" <<'YAML'
+k9s:
+  ui:
+    skin: ghostty
+YAML
+  log_ok "Seeded k9s skin (ghostty) in $K9S_CFG"
+fi
+
 log_done

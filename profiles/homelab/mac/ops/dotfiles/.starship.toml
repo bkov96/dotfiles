@@ -1,0 +1,12 @@
+# Starship prompt — https://starship.rs/config
+# Mirrors the work/mac prompt so an SSH session into the homelab looks the same.
+add_newline = true
+command_timeout = 1000
+
+[directory]
+truncation_length = 4
+truncate_to_repo = true
+
+[cmd_duration]
+min_time = 2000
+format = "took [$duration](bold yellow) "

@@ -51,7 +51,7 @@ Currently available profiles: `work/mac`, `homelab/mac` (with `admin` and `ops` 
 
 | Profile   | Platform | Description                                                                                                                 |
 | --------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `work`    | `mac`    | Work machine                                                                                                                |
+| `work`    | `mac`    | Work machine ([terminal setup](profiles/work/mac/docs/ghostty.md))                                                          |
 | `homelab` | `mac`    | Homelab server ([bootstrap guide](profiles/homelab/mac/README.md), [services](profiles/homelab/mac/ops/services/README.md)) |
 | `github`  | `ci`     | CI environment                                                                                                              |
 
