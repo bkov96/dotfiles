@@ -244,7 +244,12 @@ groups:
             datasourceUid: prometheus
             model:
               refId: A
-              expr: 'sum(sonarr_system_health_issues) + sum(radarr_system_health_issues) + sum(prowlarr_system_health_issues) + sum(bazarr_system_health_issues)'
+              # Exclude UpdateCheck ("New update is available") notices: the *arr
+              # images are intentionally pinned, so those warnings are permanent
+              # noise, not faults. Single sum over all four metrics (not a chain of
+              # sum()+sum()) so a filtered-empty term can't collapse the whole
+              # expression to NoData; `or vector(0)` keeps it at 0 when healthy.
+              expr: 'sum({__name__=~"(sonarr|radarr|prowlarr|bazarr)_system_health_issues", source!="UpdateCheck"}) or vector(0)'
               instant: true
           - refId: C
             relativeTimeRange: { from: 0, to: 0 }
