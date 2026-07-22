@@ -11,6 +11,7 @@ Automated media server for requesting, downloading, organizing, and streaming mo
 - [First-launch setup](#first-launch-setup)
 - [Quality profiles](#quality-profiles)
 - [Apple TV setup](#apple-tv-setup)
+- [Manual downloads](#manual-downloads)
 - [Maintenance](#maintenance)
 
 ## Architecture
@@ -52,8 +53,14 @@ ${MEDIA_ROOT}/
 │   ├── movies/          ← qBittorrent downloads here
 │   └── series/          ← qBittorrent downloads here
 ├── movies/              ← Radarr hardlinks completed movies here
-└── series/              ← Sonarr hardlinks completed series here
+├── series/              ← Sonarr hardlinks completed series here
+└── other/               ← manual (non-indexed) downloads live here
 ```
+
+The `other/` folder is the [manual download lane](#manual-downloads) — content grabbed
+directly from ncore without going through Prowlarr/Radarr/Sonarr/Seerr. qBittorrent
+downloads straight into it (the seeding torrent *is* the library file), and Jellyfin
+serves it as a read-only "Other" library.
 
 ## DNS setup
 
@@ -81,6 +88,7 @@ docker logs qbittorrent 2>&1 | grep "temporary password"
 5. **Create download categories** (left sidebar → right-click → "New Category"):
    - Category: `movies`, Save Path: `/media/downloads/movies`
    - Category: `series`, Save Path: `/media/downloads/series`
+   - Category: `manual`, Save Path: `/media/other` (for the [manual download lane](#manual-downloads))
 6. **Settings → BitTorrent → Seeding Limits**: leave unchecked (seed indefinitely)
 
 ### 2. Radarr
@@ -251,8 +259,14 @@ Visit `https://jellyfin.media.${LAB_DOMAIN}`.
    - Folders: `/media/series`
    - Preferred language: English
    - Country: Hungary
-4. **Dashboard → API Keys → Create**: create an API key for Radarr/Sonarr integration (used in their Connect settings)
-5. **Dashboard → Scheduled Tasks → Scan All Libraries**: run manually for initial scan
+4. **Dashboard → Libraries → Add Media Library** (the [manual download lane](#manual-downloads)):
+   - Content type: Movies
+   - Display name: Other
+   - Folders: `/media/other`
+   - Preferred language: English
+   - Country: Hungary
+5. **Dashboard → API Keys → Create**: create an API key for Radarr/Sonarr integration (used in their Connect settings)
+6. **Dashboard → Scheduled Tasks → Scan All Libraries**: run manually for initial scan
 
 ### 10. Seerr
 
@@ -338,6 +352,46 @@ Jellyfin exposes port 8096 directly (in addition to HTTPS via Caddy) so that Inf
 5. Libraries should appear automatically
 
 Browser access at `https://jellyfin.media.${LAB_DOMAIN}` continues to work through Caddy with HTTPS as before.
+
+## Manual downloads
+
+Sometimes you want to grab something directly from ncore — a magnet or `.torrent`
+link you already have — without indexing it through Prowlarr/Radarr/Sonarr/Seerr. The
+`manual` lane exists for exactly this: qBittorrent downloads straight into
+`${MEDIA_ROOT}/other`, and Jellyfin serves that folder as the read-only **Other**
+library, so it shows up in Infuse alongside everything else.
+
+Nothing about this touches the arr stack — no metadata match, no quality profile, no
+request record. It's just "download this file and let me watch it".
+
+### Per-use workflow
+
+1. Open qBittorrent at `https://downloads.${LAB_DOMAIN}`.
+2. Add the torrent:
+   - **Magnet link**: top toolbar → *Add Torrent Link* → paste → **Category: `manual`** → Add.
+   - **`.torrent` file**: top toolbar → *Add Torrent File* → select it → **Category: `manual`** → Add.
+3. Wait for the download to finish. It lands in `${MEDIA_ROOT}/other/` and keeps
+   seeding (good for your ncore ratio) — the seeding file *is* the library file.
+4. It appears in Infuse under the **Other** library after Jellyfin's next library scan
+   (see note below). To watch immediately, trigger a scan:
+   **Jellyfin → Dashboard → Scheduled Tasks → Scan All Libraries** (or *Scan Library
+   Files* on the Other library).
+
+### Scan timing
+
+Jellyfin's real-time folder monitoring can miss changes made through a macOS/OrbStack
+bind mount, so don't rely on new files appearing instantly. The dependable trigger is
+Jellyfin's scheduled library scan. If you want manual downloads to surface sooner
+without a button press, shorten the interval at
+**Dashboard → Scheduled Tasks → Scan Media Library → (edit trigger)** — e.g. every few
+hours. Otherwise a manual *Scan All Libraries* is the one-tap way to see it right away.
+
+### Removing manual content
+
+Delete the torrent from qBittorrent. If you choose **"also delete the files"**, it
+disappears from the Other library too (the file and the library entry are the same
+file — there's no hardlinked copy, unlike the arr-managed folders). Keep the torrent to
+keep seeding and keep it watchable.
 
 ## Maintenance
 

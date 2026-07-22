@@ -14,6 +14,7 @@ services:
       - ${SERVICES_DATA_DIR}/jellyfin/cache:/cache
       - ${MEDIA_ROOT}/movies:/media/movies:ro
       - ${MEDIA_ROOT}/series:/media/series:ro
+      - ${MEDIA_ROOT}/other:/media/other:ro
     networks:
       - caddy_proxy
       - default
