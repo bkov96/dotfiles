@@ -12,6 +12,7 @@ shared `metrics_internal` Docker network.
 | `exportarr-radarr`    | `ghcr.io/onedr0p/exportarr:v2.3.0`                               | `radarr:7878`       | `RADARR_API_KEY`       |
 | `exportarr-prowlarr`  | `ghcr.io/onedr0p/exportarr:v2.3.0`                               | `prowlarr:9696`     | `PROWLARR_API_KEY`     |
 | `exportarr-bazarr`    | `ghcr.io/onedr0p/exportarr:v2.3.0`                               | `bazarr:6767`       | `BAZARR_API_KEY`       |
+| `exportarr-lidarr`    | `ghcr.io/onedr0p/exportarr:v2.3.0`                               | `lidarr:8686`       | `LIDARR_API_KEY`       |
 | `qbittorrent-exporter`| `ghcr.io/esanchezm/prometheus-qbittorrent-exporter:sha-3e55078`  | `qbittorrent:8080`  | `QBITTORRENT_PASSWORD` |
 | `jellyfin-exporter`   | `rebelcore/jellyfin-exporter:v1.5.0` (Docker Hub)                | `jellyfin:8096`     | `JELLYFIN_API_KEY`     |
 | `seerr-exporter`      | `ghcr.io/opspotes/jellyseerr-exporter:1.4.0` (amd64 only)        | `seerr:5055`        | `SEERR_API_KEY`        |
@@ -21,9 +22,11 @@ Lifecycle: managed as a single Compose project via
 
 ## Notes on individual exporters
 
-- **`exportarr` (Sonarr/Radarr/Prowlarr/Bazarr)** — single image, one
-  container per *Arr; the *Arr name is passed as the `command`. The
-  `ENABLE_ADDITIONAL_METRICS` flag is on for Sonarr/Radarr only.
+- **`exportarr` (Sonarr/Radarr/Lidarr/Prowlarr/Bazarr)** — single image,
+  one container per *Arr; the *Arr name is passed as the `command`. The
+  `ENABLE_ADDITIONAL_METRICS` flag is on for Sonarr, Radarr and Lidarr.
+  Lidarr additionally sets `DISABLE_ALBUM_METRICS`, since album metrics
+  fan out per artist on every scrape.
 - **`qbittorrent-exporter`** — no semver tags upstream; pinned to a
   specific `sha-<short>` tag. Bump intentionally.
 - **`jellyfin-exporter`** — published on Docker Hub (not GHCR). Newer

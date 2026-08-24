@@ -45,6 +45,11 @@ scrape_configs:
       - targets:
           - exportarr-bazarr:9710
 
+  - job_name: exportarr-lidarr
+    static_configs:
+      - targets:
+          - exportarr-lidarr:9711
+
   - job_name: qbittorrent
     static_configs:
       - targets:
@@ -59,3 +64,11 @@ scrape_configs:
     static_configs:
       - targets:
           - seerr-exporter:9850
+
+  - job_name: navidrome
+    basic_auth:
+      username: navidrome
+      password: ${NAVIDROME_METRICS_PASSWORD}
+    static_configs:
+      - targets:
+          - navidrome:4533

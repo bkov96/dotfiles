@@ -49,6 +49,22 @@ services:
     networks:
       - metrics_internal
 
+  exportarr-lidarr:
+    image: ghcr.io/onedr0p/exportarr:v2.3.0
+    container_name: exportarr-lidarr
+    restart: unless-stopped
+    command: ["lidarr"]
+    environment:
+      PORT: "9711"
+      URL: "http://lidarr:8686"
+      APIKEY: ${LIDARR_API_KEY}
+      ENABLE_ADDITIONAL_METRICS: "true"
+      # Album metrics are a per-artist fan-out (two API calls per artist per
+      # scrape) — the same shape behind exportarr's bazarr CPU-drain issue.
+      DISABLE_ALBUM_METRICS: "true"
+    networks:
+      - metrics_internal
+
   qbittorrent-exporter:
     # esanchezm/prometheus-qbittorrent-exporter has no semver tags — only `latest`,
     # `master`, and per-commit `sha-<short>` tags. Pinning to a specific sha-<short>

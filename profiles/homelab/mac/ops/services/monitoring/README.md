@@ -100,14 +100,16 @@ Unless noted otherwise in the monitor table:
 
 #### service + media
 
-| Name     | Type | URL                                    |
-| -------- | ---- | -------------------------------------- |
-| Bazarr   | HTTP | `https://bazarr.media.${LAB_DOMAIN}`   |
-| Jellyfin | HTTP | `https://jellyfin.media.${LAB_DOMAIN}` |
-| Prowlarr | HTTP | `https://prowlarr.media.${LAB_DOMAIN}` |
-| Radarr   | HTTP | `https://radarr.media.${LAB_DOMAIN}`   |
-| Seerr    | HTTP | `https://media.${LAB_DOMAIN}`          |
-| Sonarr   | HTTP | `https://sonarr.media.${LAB_DOMAIN}`   |
+| Name      | Type | URL                                     |
+| --------- | ---- | --------------------------------------- |
+| Bazarr    | HTTP | `https://bazarr.media.${LAB_DOMAIN}`    |
+| Jellyfin  | HTTP | `https://jellyfin.media.${LAB_DOMAIN}`  |
+| Lidarr    | HTTP | `https://lidarr.media.${LAB_DOMAIN}`    |
+| Navidrome | HTTP | `https://navidrome.media.${LAB_DOMAIN}` |
+| Prowlarr  | HTTP | `https://prowlarr.media.${LAB_DOMAIN}`  |
+| Radarr    | HTTP | `https://radarr.media.${LAB_DOMAIN}`    |
+| Seerr     | HTTP | `https://media.${LAB_DOMAIN}`           |
+| Sonarr    | HTTP | `https://sonarr.media.${LAB_DOMAIN}`    |
 
 ### Restore procedure
 
