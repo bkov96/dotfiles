@@ -54,12 +54,13 @@ dotfiles configs link
 dfs services restart exporters
 ```
 
-| Service                                    | UI path                                          |
-| ------------------------------------------ | ------------------------------------------------ |
-| Sonarr / Radarr / Prowlarr / Bazarr        | Settings → General → API Key                     |
-| Jellyfin                                   | Dashboard → API Keys → New (name: `exporter`)    |
-| Seerr                                      | Settings → General → API Key                     |
-| qBittorrent                                | Use the admin password (already in Bitwarden)    |
+| Service                                      | UI path                                                                                                 |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Sonarr / Radarr / Lidarr / Prowlarr / Bazarr | Settings → General → API Key                                                                            |
+| Jellyfin                                     | Dashboard → API Keys → New (name: `exporter`)                                                           |
+| Seerr                                        | Settings → General → API Key                                                                            |
+| qBittorrent                                  | Use the admin password (already in Bitwarden)                                                           |
+| Navidrome                                    | No UI — you choose the value; store as `NAVIDROME_METRICS_PASSWORD` (compose: `ND_PROMETHEUS_PASSWORD`) |
 
 ## Verifying
 
@@ -74,5 +75,5 @@ docker exec prometheus wget -qO- http://exportarr-sonarr:9707/metrics | grep '^s
 ```
 
 The four media-stack dashboards land in the **Homelab** folder of
-Grafana automatically: `Media Dashboard` (Sonarr/Radarr/Prowlarr),
+Grafana automatically: `Media Dashboard` (Sonarr/Radarr/Lidarr/Prowlarr/Bazarr),
 `qBittorrent`, `Jellyfin`, `Seerr`.
