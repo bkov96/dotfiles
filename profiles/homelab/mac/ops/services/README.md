@@ -57,6 +57,7 @@ graph TD
 | `MEDIA_ROOT`                    | Host path for media library             |
 | `QBITTORRENT_PASSWORD`          | qBittorrent web UI admin password       |
 | `RADARR_API_KEY`                | Radarr API key (for Recyclarr)          |
+| `LIDARR_API_KEY`                | Lidarr API key (for exportarr)          |
 | `SONARR_API_KEY`                | Sonarr API key (for Recyclarr)          |
 
 When creating `GRAFANA_ADMIN_PASSWORD`, note the following constraint:

@@ -7,6 +7,7 @@
     "HOMELAB_IP": "",
     "JELLYFIN_API_KEY": "",
     "LAB_DOMAIN": "",
+    "LIDARR_API_KEY": "",
     "MEDIA_ROOT": "",
     "PROWLARR_API_KEY": "",
     "QBITTORRENT_PASSWORD": "",

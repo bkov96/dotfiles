@@ -1,0 +1,23 @@
+services:
+  lidarr:
+    image: ghcr.io/hotio/lidarr:release-3.1.0.4875
+    container_name: lidarr
+    restart: unless-stopped
+    environment:
+      - PUID=501
+      - PGID=20
+      - UMASK=002
+      - TZ=Europe/Budapest
+    volumes:
+      - ${SERVICES_DATA_DIR}/lidarr:/config
+      - ${MEDIA_ROOT}:/media
+    networks:
+      - caddy_proxy
+      - default
+      - metrics_internal
+
+networks:
+  caddy_proxy:
+    external: true
+  metrics_internal:
+    external: true
