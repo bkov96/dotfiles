@@ -75,5 +75,5 @@ docker exec prometheus wget -qO- http://exportarr-sonarr:9707/metrics | grep '^s
 ```
 
 The four media-stack dashboards land in the **Homelab** folder of
-Grafana automatically: `Media Dashboard` (Sonarr/Radarr/Lidarr/Prowlarr/Bazarr),
+Grafana automatically: `Media Dashboard` (Sonarr/Radarr/Lidarr/Prowlarr),
 `qBittorrent`, `Jellyfin`, `Seerr`.
