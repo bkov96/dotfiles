@@ -55,6 +55,8 @@ graph TD
 | `TELEGRAM_BOT_TOKEN_MONITORING` | Token for the dedicated monitoring bot  |
 | `TELEGRAM_CHAT_ID_MONITORING`   | Chat ID that receives Grafana alerts    |
 | `MEDIA_ROOT`                    | Host path for media library             |
+| `NAVIDROME_ENCRYPTION_KEY`      | Key encrypting Navidrome-stored secrets |
+| `NAVIDROME_METRICS_PASSWORD`    | Basic-auth password for `/metrics`      |
 | `QBITTORRENT_PASSWORD`          | qBittorrent web UI admin password       |
 | `RADARR_API_KEY`                | Radarr API key (for Recyclarr)          |
 | `LIDARR_API_KEY`                | Lidarr API key (for exportarr)          |
@@ -66,6 +68,10 @@ When creating `GRAFANA_ADMIN_PASSWORD`, note the following constraint:
 > so it should avoid YAML-special characters (`:`, `#`, `{`, `}`, `[`, `]`, `*`,
 > `&`, `|`, `>`, `'`, `"`, `!`, etc.). Stick to alphanumeric plus safe symbols
 > like `-`, `_`, `@` to avoid surprises at render time.
+
+The same constraint applies to `NAVIDROME_ENCRYPTION_KEY` and
+`NAVIDROME_METRICS_PASSWORD`, since they are interpolated into Compose YAML
+the same way.
 
 ## Commands
 

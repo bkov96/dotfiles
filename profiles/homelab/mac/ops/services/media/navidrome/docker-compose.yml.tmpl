@@ -1,0 +1,41 @@
+services:
+  navidrome:
+    image: deluan/navidrome:0.63.2
+    container_name: navidrome
+    restart: unless-stopped
+    user: "501:20"
+    environment:
+      TZ: Europe/Budapest
+      ND_MUSICFOLDER: /music
+      ND_DATAFOLDER: /data
+      # The filesystem watcher misses events over OrbStack bind mounts (the
+      # same limitation documented for Jellyfin), so scanning is scheduled.
+      ND_SCANNER_SCHEDULE: "@every 1h"
+      # Off by default because transcoding profiles shell out; required to
+      # edit or add profiles in the UI. Built-in profiles work either way.
+      ND_ENABLETRANSCODINGCONFIG: "true"
+      # Default is 100MB. This cache lives in /data, i.e. the internal SSD.
+      ND_TRANSCODINGCACHESIZE: 4GB
+      # Users, playlists, play counts and ratings live only in the SQLite DB.
+      ND_BACKUP_PATH: /data/backup
+      ND_BACKUP_SCHEDULE: "@daily"
+      ND_BACKUP_COUNT: "7"
+      # Basic auth (user `navidrome`) keeps /metrics off the LAN, since the
+      # Caddy route would otherwise serve it to anyone.
+      ND_PROMETHEUS_ENABLED: "true"
+      ND_PROMETHEUS_PASSWORD: ${NAVIDROME_METRICS_PASSWORD}
+      ND_PASSWORDENCRYPTIONKEY: ${NAVIDROME_ENCRYPTION_KEY}
+      ND_LOGLEVEL: info
+    volumes:
+      - ${SERVICES_DATA_DIR}/navidrome:/data
+      - ${MEDIA_ROOT}/music:/music:ro
+    networks:
+      - caddy_proxy
+      - default
+      - metrics_internal
+
+networks:
+  caddy_proxy:
+    external: true
+  metrics_internal:
+    external: true

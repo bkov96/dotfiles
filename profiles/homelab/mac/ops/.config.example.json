@@ -9,6 +9,8 @@
     "LAB_DOMAIN": "",
     "LIDARR_API_KEY": "",
     "MEDIA_ROOT": "",
+    "NAVIDROME_ENCRYPTION_KEY": "",
+    "NAVIDROME_METRICS_PASSWORD": "",
     "PROWLARR_API_KEY": "",
     "QBITTORRENT_PASSWORD": "",
     "RADARR_API_KEY": "",

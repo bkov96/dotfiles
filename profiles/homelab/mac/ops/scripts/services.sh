@@ -27,7 +27,7 @@ CADDY_ROUTES_DIR="$SERVICES_DIR/network/caddy/routes"
 INFRA_SERVICES="caddy"
 
 # Services that bind-mount ${MEDIA_ROOT} and require the drive to be present
-MEDIA_SERVICES="qbittorrent radarr sonarr lidarr bazarr jellyfin recyclarr seerr"
+MEDIA_SERVICES="qbittorrent radarr sonarr lidarr bazarr jellyfin navidrome recyclarr seerr"
 
 # --- Helpers ---
 
