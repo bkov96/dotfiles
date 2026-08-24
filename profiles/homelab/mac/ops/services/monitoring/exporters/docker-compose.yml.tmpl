@@ -59,9 +59,6 @@ services:
       URL: "http://lidarr:8686"
       APIKEY: ${LIDARR_API_KEY}
       ENABLE_ADDITIONAL_METRICS: "true"
-      # Album metrics are a per-artist fan-out (two API calls per artist per
-      # scrape) — the same shape behind exportarr's bazarr CPU-drain issue.
-      DISABLE_ALBUM_METRICS: "true"
     networks:
       - metrics_internal
 

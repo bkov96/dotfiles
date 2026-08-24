@@ -24,9 +24,9 @@ Lifecycle: managed as a single Compose project via
 
 - **`exportarr` (Sonarr/Radarr/Lidarr/Prowlarr/Bazarr)** — single image,
   one container per *Arr; the *Arr name is passed as the `command`. The
-  `ENABLE_ADDITIONAL_METRICS` flag is on for Sonarr, Radarr and Lidarr.
-  Lidarr additionally sets `DISABLE_ALBUM_METRICS`, since album metrics
-  fan out per artist on every scrape.
+  `ENABLE_ADDITIONAL_METRICS` flag is on for Sonarr, Radarr and Lidarr; on
+  Lidarr it adds a per-artist fan-out, so that job alone is scraped every
+  60s instead of the global 15s.
 - **`qbittorrent-exporter`** — no semver tags upstream; pinned to a
   specific `sha-<short>` tag. Bump intentionally.
 - **`jellyfin-exporter`** — published on Docker Hub (not GHCR). Newer
@@ -63,6 +63,15 @@ dfs services restart exporters
 | Navidrome                                    | No UI — you choose the value; store as `NAVIDROME_METRICS_PASSWORD` (compose: `ND_PROMETHEUS_PASSWORD`) |
 
 ## Verifying
+
+New or changed Prometheus scrape jobs need a restart to take effect:
+`docker compose up -d` is a no-op when the compose file itself hasn't
+changed, and `prometheus.yml` is a bind-mounted file, so re-rendering it
+via `dfs services start` alone doesn't reload it.
+
+```bash
+dfs services restart prometheus
+```
 
 ```bash
 # All scrape targets healthy (run from the prometheus container —

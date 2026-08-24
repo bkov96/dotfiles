@@ -12,6 +12,7 @@ Automated media server for requesting, downloading, organizing, and streaming mo
 - [Quality profiles](#quality-profiles)
 - [Apple TV setup](#apple-tv-setup)
 - [Manual downloads](#manual-downloads)
+- [Music requests and ncore gaps](#music-requests-and-ncore-gaps)
 - [Maintenance](#maintenance)
 - [Future work](#future-work-intentionally-not-implemented)
 
@@ -53,7 +54,7 @@ graph LR
 
 ## Storage layout
 
-All services that touch media files mount the same `${MEDIA_ROOT}` at `/media` to enable hardlinks (files stored once on disk, appear in two locations).
+All services that touch media files mount `${MEDIA_ROOT}` or a subfolder of it, so everything lives on one volume and hardlinks work (files stored once on disk, appear in two locations).
 
 ```
 ${MEDIA_ROOT}/
@@ -86,6 +87,18 @@ Two wildcard DNS records on the UniFi router, both pointing to the homelab IP:
 ## First-launch setup
 
 After `dfs services start`, each service needs one-time manual configuration. Follow this order — later services depend on earlier ones.
+
+**Before starting anything**, create the music directories and check their
+ownership. `scripts/services.sh` only creates `${SERVICES_DATA_DIR}/<service>`
+and its media-root guard only checks for `${MEDIA_ROOT}/movies` — it never
+creates `${MEDIA_ROOT}/music` or `${MEDIA_ROOT}/downloads/music`. If Docker
+auto-creates Navidrome's read-only bind source instead and it lands
+root-owned, Lidarr (uid 501) will not be able to import into it:
+
+```bash
+mkdir -p "${MEDIA_ROOT}/music" "${MEDIA_ROOT}/downloads/music"
+ls -ld "${MEDIA_ROOT}/music" "${MEDIA_ROOT}/downloads/music"   # expect owner 501, group 20
+```
 
 ### 1. qBittorrent
 
@@ -315,7 +328,15 @@ Visit `https://jellyfin.media.${LAB_DOMAIN}`.
 Visit `https://navidrome.media.${LAB_DOMAIN}`.
 
 1. **First visit**: the form shown creates the **admin** account. There is no
-   separate wizard.
+   separate wizard. Before creating it (or any other account), confirm
+   `NAVIDROME_ENCRYPTION_KEY` holds a real value in the rendered compose
+   file — not the literal string `${NAVIDROME_ENCRYPTION_KEY}`. `services.sh`
+   builds its `envsubst` variable list from the keys present in your real
+   `.config.json`, so a key present only in `.config.example.json` renders
+   as a literal placeholder and Navidrome starts with that as its
+   encryption key. This key must never change afterward — Navidrome uses it
+   to encrypt stored user passwords, and changing it invalidates every
+   stored password.
 2. **Settings → Users → Add**: create one account per household member. The
    library is shared; play counts, ratings, stars and playlists are per-user.
 3. **Transcoding** is server-side and chosen per player. Each client that
@@ -462,7 +483,7 @@ disappears from the Other library too (the file and the library entry are the sa
 file — there's no hardlinked copy, unlike the arr-managed folders). Keep the torrent to
 keep seeding and keep it watchable.
 
-### Music requests and ncore gaps
+## Music requests and ncore gaps
 
 Seerr has no music support, so Lidarr's own UI is the request path: search an
 artist, monitor it, and Lidarr grabs matching albums through Prowlarr.
@@ -486,7 +507,7 @@ To free space: remove old torrents from qBittorrent's web UI. The library copy r
 
 The full procedure (drive prep, mount stability, hardlink-preserving copy, smoke tests, rollback) is documented in the design spec. The TL;DR:
 
-1. Stop services that touch `${MEDIA_ROOT}` (qbit, arrs, bazarr, jellyfin, recyclarr, seerr).
+1. Stop services that touch `${MEDIA_ROOT}` (qbit, arrs, lidarr, bazarr, jellyfin, navidrome, recyclarr, seerr).
 2. `rsync -avH /Users/ops/HomeLab/media/ /Volumes/<NewDrive>/media/` — `-H` preserves hardlinks.
 3. Verify file counts, sizes, and a sample hardlink chain on the destination.
 4. Update `MEDIA_ROOT` in Bitwarden to the new path; `dfs services init && dfs services restart`.

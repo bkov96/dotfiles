@@ -12,13 +12,13 @@ Telegram alerting.
 
 ## Services
 
-| Service     | Domain                             | Purpose                                                          |
-| ----------- | ---------------------------------- | ---------------------------------------------------------------- |
-| Uptime Kuma | `uptime.${LAB_DOMAIN}`             | Synthetic checks + Telegram alerts                               |
-| Grafana     | `monitoring.${LAB_DOMAIN}`         | Dashboards + alert rules (Telegram)                              |
-| Prometheus  | (internal)                         | Metrics store, scrapes node_exporter, macmon, caddy, exporters   |
-| Portainer   | `containers.${LAB_DOMAIN}`         | Docker UI for the OrbStack environment                           |
-| Exporters   | (internal)                         | Prometheus exporters for the *Arr stack, qBittorrent, Jellyfin, Seerr |
+| Service     | Domain                     | Purpose                                                                   |
+| ----------- | -------------------------- | ------------------------------------------------------------------------- |
+| Uptime Kuma | `uptime.${LAB_DOMAIN}`     | Synthetic checks + Telegram alerts                                        |
+| Grafana     | `monitoring.${LAB_DOMAIN}` | Dashboards + alert rules (Telegram)                                       |
+| Prometheus  | (internal)                 | Metrics store, scrapes node_exporter, macmon, caddy, exporters, navidrome |
+| Portainer   | `containers.${LAB_DOMAIN}` | Docker UI for the OrbStack environment                                    |
+| Exporters   | (internal)                 | Prometheus exporters for the *Arr stack, qBittorrent, Jellyfin, Seerr     |
 
 First-launch instructions for each service live in the parent
 [services README](../README.md#manual-setup-steps-not-repo-managed).
