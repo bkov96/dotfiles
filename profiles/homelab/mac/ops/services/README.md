@@ -25,7 +25,7 @@ graph TD
     Caddy -->|caddy_proxy| Uptime[monitoring/Uptime Kuma]
     Caddy -->|caddy_proxy| Portainer[monitoring/Portainer]
     Caddy -->|caddy_proxy| Grafana[monitoring/Grafana]
-    Caddy -->|caddy_proxy| Media[media/Seerr, Radarr, Sonarr,<br/>Prowlarr, Bazarr, Jellyfin, Recyclarr]
+    Caddy -->|caddy_proxy| Media[media/Seerr, Radarr, Sonarr, Lidarr,<br/>Prowlarr, Bazarr, Jellyfin, Navidrome, Recyclarr]
     Grafana -->|queries| Prom[monitoring/Prometheus]
     Prom -->|scrapes| Host[host: node_exporter + macmon]
 ```
@@ -296,9 +296,9 @@ Registration is disabled — create additional users manually if needed.
 
 ### 10. Media stack: downloads + media services
 
-The media stack (qBittorrent, Prowlarr, Radarr, Sonarr, Bazarr, Jellyfin,
-Seerr, Recyclarr) requires extensive first-launch configuration. See the
-dedicated guide: [Media Stack README](media/README.md).
+The media stack (qBittorrent, Prowlarr, Radarr, Sonarr, Lidarr, Bazarr,
+Jellyfin, Navidrome, Seerr, Recyclarr) requires extensive first-launch
+configuration. See the dedicated guide: [Media Stack README](media/README.md).
 
 ### 11. Auto-recovery after power loss
 

@@ -1,6 +1,6 @@
 # Media Stack
 
-Automated media server for requesting, downloading, organizing, and streaming movies and series. Content sourced from ncore.pro, streamed via Jellyfin + Infuse on Apple TV 4K.
+Automated media server for requesting, downloading, organizing, and streaming movies and series. Content sourced from ncore.pro, streamed via Jellyfin + Infuse on Apple TV 4K. The stack also covers music: albums acquired by Lidarr from ncore, played through Navidrome via its web UI and iOS Subsonic clients, replacing Apple Music.
 
 ## Contents
 
@@ -13,6 +13,7 @@ Automated media server for requesting, downloading, organizing, and streaming mo
 - [Apple TV setup](#apple-tv-setup)
 - [Manual downloads](#manual-downloads)
 - [Maintenance](#maintenance)
+- [Future work](#future-work-intentionally-not-implemented)
 
 ## Architecture
 
@@ -28,6 +29,11 @@ graph LR
     Bazarr -->|subtitles| Library
     Jellyfin -->|scan| Library
     Infuse -->|stream| Jellyfin
+    Lidarr -->|search| Prowlarr
+    Lidarr -->|grab| qBittorrent
+    Lidarr -->|hardlink| MusicLibrary[music/]
+    Navidrome -->|hourly scan, ro| MusicLibrary
+    Clients[Web / iOS Subsonic] -->|HTTPS| Navidrome
 ```
 
 ## Services
@@ -37,9 +43,11 @@ graph LR
 | Seerr | `media.${LAB_DOMAIN}` | Request UI (main entry point) |
 | Radarr | `radarr.media.${LAB_DOMAIN}` | Movie management |
 | Sonarr | `sonarr.media.${LAB_DOMAIN}` | Series management |
+| Lidarr | `lidarr.media.${LAB_DOMAIN}` | Music management |
 | Prowlarr | `prowlarr.media.${LAB_DOMAIN}` | Indexer manager |
 | Bazarr | `bazarr.media.${LAB_DOMAIN}` | Subtitle fetching |
 | Jellyfin | `jellyfin.media.${LAB_DOMAIN}` | Media server / library |
+| Navidrome | `navidrome.media.${LAB_DOMAIN}` | Music server / player |
 | qBittorrent | `downloads.${LAB_DOMAIN}` | Torrent client |
 | Recyclarr | — | TRaSH Guides config sync (no UI) |
 
@@ -51,9 +59,11 @@ All services that touch media files mount the same `${MEDIA_ROOT}` at `/media` t
 ${MEDIA_ROOT}/
 ├── downloads/
 │   ├── movies/          ← qBittorrent downloads here
-│   └── series/          ← qBittorrent downloads here
+│   ├── series/          ← qBittorrent downloads here
+│   └── music/           ← qBittorrent downloads here
 ├── movies/              ← Radarr hardlinks completed movies here
 ├── series/              ← Sonarr hardlinks completed series here
+├── music/               ← Lidarr hardlinks completed albums here
 └── other/               ← manual (non-indexed) downloads live here
 ```
 
@@ -61,6 +71,10 @@ The `other/` folder is the [manual download lane](#manual-downloads) — content
 directly from ncore without going through Prowlarr/Radarr/Sonarr/Seerr. qBittorrent
 downloads straight into it (the seeding torrent *is* the library file), and Jellyfin
 serves it as a read-only "Other" library.
+
+`music/` is mounted read-write by Lidarr and read-only by Navidrome. Both music paths
+sit on the same `${MEDIA_ROOT}` volume so hardlinks work between `downloads/music/` and
+`music/` — the same rule as the video lane.
 
 ## DNS setup
 
@@ -89,6 +103,7 @@ docker logs qbittorrent 2>&1 | grep "temporary password"
    - Category: `movies`, Save Path: `/media/downloads/movies`
    - Category: `series`, Save Path: `/media/downloads/series`
    - Category: `manual`, Save Path: `/media/other` (for the [manual download lane](#manual-downloads))
+   - Category: `music`, Save Path: `/media/downloads/music`
 6. **Settings → BitTorrent → Seeding Limits**: leave unchecked (seed indefinitely)
 
 ### 2. Radarr
@@ -136,7 +151,30 @@ Visit `https://sonarr.media.${LAB_DOMAIN}`.
    - API Key: same Jellyfin API key as Radarr
    - Test and save
 
-### 4. Custom formats (manual)
+### 4. Lidarr
+
+Visit `https://lidarr.media.${LAB_DOMAIN}`.
+
+1. **First-run**: create an admin account
+2. **Settings → General → API Key**: copy this key and save it to Bitwarden field `LIDARR_API_KEY` on the `dotfiles/homelab/mac` item
+3. **Settings → Media Management → Root Folders → Add Root Folder**: `/media/music`
+4. **Settings → Download Clients → Add → qBittorrent**:
+   - Host: `qbittorrent`
+   - Port: `8080`
+   - Username: `admin`
+   - Password: the password you set in the qBittorrent step
+   - Category: `music`
+   - Test the connection
+5. **Settings → Profiles → Quality Profile → Add**: name it `Lossless-first`
+   - Allowed, highest first: **FLAC**, **MP3-320**, **MP3-VBR-V0**
+   - Everything else: unchecked
+   - Upgrades Allowed: yes, **Upgrade Until: FLAC**
+6. **Settings → Profiles → Metadata Profile**: use the default (Studio albums only) unless you want singles and live records too
+7. **Settings → Connect**: nothing to add — Navidrome has no notification integration, so new albums appear on its next hourly scan
+
+Prowlarr registration is covered in the Prowlarr section below.
+
+### 5. Custom formats (manual)
 
 Recyclarr can only score TRaSH-managed custom formats. Language custom formats — used by the four quality profiles below — must be created in the Radarr/Sonarr UI before the first Recyclarr sync, and their per-profile scores must also be set manually after the profiles exist.
 
@@ -152,9 +190,9 @@ In Sonarr (same path):
 - `English` — Language = English
 - `Original` — Language = Original
 
-The scores get set in step 6 (after Recyclarr creates the profiles).
+The scores get set in step 7 (after Recyclarr creates the profiles).
 
-### 5. Recyclarr
+### 6. Recyclarr
 
 After API keys are in Bitwarden and language custom formats are created:
 
@@ -169,7 +207,7 @@ After API keys are in Bitwarden and language custom formats are created:
    ```
 3. Check that the four profiles were created in Radarr (`Settings → Profiles`): `4K HU`, `4K Any`, `HD HU`, `HD Any`. Same in Sonarr.
 
-### 6. Configure each profile (Language + CF scores)
+### 7. Configure each profile (Language + CF scores)
 
 For each of the four profiles in **both Radarr and Sonarr** (`Settings → Profiles` → click profile):
 
@@ -194,7 +232,7 @@ In Sonarr (same shape as Radarr):
 | `HD HU` | 2000 | 0 | 0 |
 | `HD Any` | 0 | 2000 | 2000 |
 
-### 7. Prowlarr
+### 8. Prowlarr
 
 Visit `https://prowlarr.media.${LAB_DOMAIN}`.
 
@@ -211,8 +249,12 @@ Visit `https://prowlarr.media.${LAB_DOMAIN}`.
    - Prowlarr Server: `http://prowlarr:9696`
    - Sonarr Server: `http://sonarr:8989`
    - API Key: paste the Sonarr API key
+5. **Settings → Apps → Add Application → Lidarr**:
+   - Prowlarr Server: `http://prowlarr:9696`
+   - Lidarr Server: `http://lidarr:8686`
+   - API Key: paste the Lidarr API key
 
-### 8. Bazarr
+### 9. Bazarr
 
 Visit `https://bazarr.media.${LAB_DOMAIN}`.
 
@@ -237,7 +279,7 @@ Visit `https://bazarr.media.${LAB_DOMAIN}`.
    - **subdl**: good alternative for Hungarian subtitles
    - Enable any additional providers as desired
 
-### 9. Jellyfin
+### 10. Jellyfin
 
 Visit `https://jellyfin.media.${LAB_DOMAIN}`.
 
@@ -268,7 +310,34 @@ Visit `https://jellyfin.media.${LAB_DOMAIN}`.
 5. **Dashboard → API Keys → Create**: create an API key for Radarr/Sonarr integration (used in their Connect settings)
 6. **Dashboard → Scheduled Tasks → Scan All Libraries**: run manually for initial scan
 
-### 10. Seerr
+### 11. Navidrome
+
+Visit `https://navidrome.media.${LAB_DOMAIN}`.
+
+1. **First visit**: the form shown creates the **admin** account. There is no
+   separate wizard.
+2. **Settings → Users → Add**: create one account per household member. The
+   library is shared; play counts, ratings, stars and playlists are per-user.
+3. **Transcoding** is server-side and chosen per player. Each client that
+   connects registers itself under **Settings → Players**; set the phone
+   entries to **Opus 128k** (or **AAC 192k** for clients without Opus) and
+   leave the desktop browser on the original file. The transcoding cache is
+   capped at 4GB and lives on the internal SSD, not the LaCie.
+4. **iOS clients** speak the Subsonic API: Amperfy, play:Sub or substreamer.
+   Server URL is `https://navidrome.media.${LAB_DOMAIN}`, with the account's
+   username and password. The device must trust the Caddy root CA first — see
+   [Trust Caddy's root CA](../README.md#2-trust-caddys-root-ca-on-each-device).
+5. **Offline listening**: download albums inside the client. Nothing is exposed
+   to the internet, so away-from-home playback is either pre-downloaded or over
+   on-demand WireGuard.
+6. **Scanning**: a full scan runs hourly (`ND_SCANNER_SCHEDULE`). Navidrome's
+   real-time watcher is not relied on, because OrbStack bind mounts drop file
+   events — the same limitation Jellyfin has here. To see a fresh import
+   immediately, restart the container: `dfs services restart navidrome`.
+7. **Backups**: the SQLite DB holding users, playlists and play counts is dumped
+   nightly to `${SERVICES_DATA_DIR}/navidrome/backup`, keeping 7 copies.
+
+### 12. Seerr
 
 Visit `https://media.${LAB_DOMAIN}`.
 
@@ -393,13 +462,25 @@ disappears from the Other library too (the file and the library entry are the sa
 file — there's no hardlinked copy, unlike the arr-managed folders). Keep the torrent to
 keep seeding and keep it watchable.
 
+### Music requests and ncore gaps
+
+Seerr has no music support, so Lidarr's own UI is the request path: search an
+artist, monitor it, and Lidarr grabs matching albums through Prowlarr.
+
+ncore is a general Hungarian tracker — music coverage for niche or
+international artists is thinner than for film. When a search comes up empty,
+copy the files into `${MEDIA_ROOT}/music/<Artist>/<Album>/` yourself; Navidrome
+picks them up on the next hourly scan regardless of what Lidarr knows. Lidarr
+may later match those files to an artist you monitor; if you would rather it
+never touch them, leave that artist unmonitored.
+
 ## Maintenance
 
 ### Disk space
 
 qBittorrent seeds indefinitely. Completed torrents stay in `${MEDIA_ROOT}/downloads/` while hardlinked copies exist in `${MEDIA_ROOT}/movies/` and `${MEDIA_ROOT}/series/`. Since hardlinks share disk blocks, files are stored once.
 
-To free space: remove old torrents from qBittorrent's web UI. The library copy remains (hardlink becomes a regular file when the download copy is deleted).
+To free space: remove old torrents from qBittorrent's web UI. The library copy remains (hardlink becomes a regular file when the download copy is deleted). The music lane seeds and hardlinks exactly like the video lanes, so the same rule applies there too.
 
 ### Moving to external HDD
 
@@ -424,3 +505,13 @@ Recyclarr syncs TRaSH Guides daily via cron. To force an immediate sync:
 cd profiles/homelab/mac/ops/services/media/recyclarr
 docker compose run --rm recyclarr sync
 ```
+
+## Future work (intentionally not implemented)
+
+- **Grafana dashboard for Navidrome** — its native `/metrics` endpoint is
+  scraped and queryable in Explore, but no dashboard is provisioned yet.
+- **slskd + soularr as a second acquisition path** — the usual answer to thin
+  torrent music coverage. Adds a service and a second download lane.
+- **Lidarr → Navidrome scan webhook** — a Lidarr Connect custom script could
+  trigger an immediate scan instead of waiting up to an hour. Needs a script
+  that survives container rebuilds plus a Navidrome token.
