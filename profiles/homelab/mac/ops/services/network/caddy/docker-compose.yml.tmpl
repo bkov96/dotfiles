@@ -11,6 +11,7 @@ services:
       - ${SERVICES_DATA_DIR}/caddy/config:/config
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ./routes:/etc/caddy/routes:ro
+      - ${SERVICES_DATA_DIR}/caddy/routes.local:/etc/caddy/routes.local:ro
     networks:
       - caddy_proxy
 

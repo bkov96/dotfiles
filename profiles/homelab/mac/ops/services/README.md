@@ -151,6 +151,8 @@ Each service stores persistent data in `${SERVICES_DATA_DIR}/<service_name>/`. T
 
 **What's NOT in the repo:** rendered configs, persistent data, secrets.
 
+**Local routes for private projects:** Caddy also imports `${SERVICES_DATA_DIR}/caddy/routes.local/*.snippet`. Private repositories that deploy their own stacks (e.g. via a Portainer git stack) install their hostname → container route there by hand once; this public repo never learns their names. The directory is data, not config — back it up with the rest of `${SERVICES_DATA_DIR}`. Reload after adding a snippet: `docker exec caddy caddy reload --config /etc/caddy/Caddyfile`.
+
 ## Manual setup steps (not repo-managed)
 
 ### 1. UniFi: wildcard DNS records
