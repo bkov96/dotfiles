@@ -51,6 +51,11 @@ alias cat="bat --paging=never"
 
 alias dfs="dotfiles"
 
+# Claude Code accounts: work uses the default ~/.claude, personal gets its own
+# config dir (separate login, settings, history, keychain entry)
+alias claude-work="claude"
+alias claude-personal="CLAUDE_CONFIG_DIR=\$HOME/.claude-personal claude"
+
 # Kubernetes shortcuts (completions follow via zsh alias expansion)
 alias kc=kubectl
 alias kcx=kubectx
