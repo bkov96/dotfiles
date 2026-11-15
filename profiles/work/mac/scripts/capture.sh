@@ -8,5 +8,5 @@ PROFILE_DIR="$1"
 
 log_header "Capturing installed packages for ${DOTFILES_PROFILE:-}/${DOTFILES_PLATFORM:-}..."
 log_info "Running brew bundle dump..."
-brew bundle dump --file "$PROFILE_DIR/Brewfile" --force
+brew bundle dump --file "$PROFILE_DIR/Brewfile" --force --no-describe
 log_done
