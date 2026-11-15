@@ -1,0 +1,7 @@
+# Atuin history — https://docs.atuin.sh/configuration/config/
+auto_sync = false
+update_check = false
+style = "compact"
+inline_height = 25
+show_preview = true
+enter_accept = false

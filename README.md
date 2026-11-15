@@ -10,6 +10,7 @@ A machine configuration manager, organized by profile and platform. One repo hol
 | Profile       | Machine                                                  |
 | ------------- | -------------------------------------------------------- |
 | `work/mac`    | Work laptop: shell, terminal, git, SSH, CLI tools        |
+| `personal/mac` | Personal laptop: shell, terminal, .NET + Expo dev, homelab SSH |
 | `homelab/mac` | Headless Mac Mini server (`admin` and `ops` users) and its services |
 | `github/ci`   | Minimal profile used by the CI tests                     |
 
@@ -45,6 +46,7 @@ Full documentation lives in [docs/](docs/README.md).
 | I want to…                         | Read                                                      |
 | ---------------------------------- | --------------------------------------------------------- |
 | Set up the work Mac                | [Work setup](docs/profiles/work/setup.md)                 |
+| Set up the personal Mac            | [Personal setup](docs/profiles/personal/setup.md)         |
 | Rebuild the homelab                | [Homelab setup](docs/profiles/homelab/setup.md)           |
 | Use this repo for my own machines  | [Forking](docs/general/forking.md)                        |
 | Look up a command                  | [Commands](docs/general/commands.md)                      |

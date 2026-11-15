@@ -1,0 +1,20 @@
+{
+  "env": {
+    "GIT_CONFIG_EMAIL": "",
+    "GIT_CONFIG_NAME": "",
+    "HOMELAB_HOST": "",
+    "SSH_PRIVATE_KEY_B64": "",
+    "SSH_PUBLIC_KEY_B64": ""
+  },
+  "paths": {
+    ".atuin.toml": "~/.config/atuin/config.toml",
+    ".ghostty_config": "~/.config/ghostty/config",
+    ".gitconfig.tmpl": "~/.gitconfig",
+    ".ssh_config.tmpl": "~/.ssh/config",
+    ".ssh_id_ed25519_homelab.tmpl": "~/.ssh/id_ed25519_homelab",
+    ".ssh_id_ed25519_homelab.pub.tmpl": "~/.ssh/id_ed25519_homelab.pub",
+    ".starship.toml": "~/.config/starship.toml",
+    ".zsh_shift_select.zsh": "~/.config/zsh/shift-select.zsh",
+    ".zshrc.tmpl": "~/.zshrc"
+  }
+}

@@ -1,6 +1,6 @@
 # 💼 Work Mac setup
 
-Step-by-step setup of the `work/mac` profile on a fresh macOS install. What the terminal then gives you is described in [Terminal](terminal.md).
+Step-by-step setup of the `work/mac` profile on a fresh macOS install. What the terminal then gives you is described in [Terminal](../../shared/terminal.md) and [Kubernetes / Azure](kubernetes.md).
 
 ## ✅ Prerequisites
 

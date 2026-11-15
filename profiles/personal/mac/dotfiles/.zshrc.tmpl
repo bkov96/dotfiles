@@ -1,0 +1,106 @@
+# Dotfiles management
+
+export DOTFILES_PROFILE="personal"
+export DOTFILES_PLATFORM="mac"
+
+dotfiles() {
+  local repo=~/repos/dotfiles
+
+  case "$1" in
+    packages|configs|scripts|repo)
+      local group="$1" action="$2"
+      shift 2 2>/dev/null
+
+      if [ -z "$action" ]; then
+        echo "Usage: dotfiles $group <action>" >&2
+        return 1
+      fi
+
+      if [ "$group" = "repo" ] && [ "$action" = "cd" ]; then
+        cd "$repo" || return 1
+        return 0
+      fi
+
+      make -C "$repo" "${group}-${action}" "$@"
+      ;;
+    init|env|help)
+      local cmd="$1"
+      shift
+      make -C "$repo" "$cmd" "$@"
+      ;;
+    "")
+      make -C "$repo" help
+      ;;
+    *)
+      echo "Unknown command: $1. Run 'dotfiles help' for usage." >&2
+      return 1
+      ;;
+  esac
+}
+
+# Aliases
+
+# Modern CLI replacements
+alias ls="eza --icons --group-directories-first"
+alias ll="eza --icons --group-directories-first -l --git"
+alias la="eza --icons --group-directories-first -la --git"
+alias cat="bat --paging=never"
+
+alias dfs="dotfiles"
+
+# Dev toolchains
+
+source $(brew --prefix nvm)/nvm.sh
+export PATH="$HOME/.dotnet/tools:$PATH"
+
+# Interactive shell enhancements (Warp replacement)
+
+# Completion system (proper default tab-completion)
+autoload -Uz compinit && compinit -u
+
+# Fuzzy Tab-completion menu (load after compinit, before autosuggestions/fsh)
+source "$(brew --prefix)/share/fzf-tab/fzf-tab.zsh"
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+
+# Smarter cd: `z <dir>` jumps to a frequent dir; plain `cd` still works
+eval "$(zoxide init zsh)"
+
+# Inline autosuggestions (accept with →)
+source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+
+# Fuzzy finder keys: Ctrl-T (files), Alt-C (cd). Ctrl-R stays Atuin (initialized next).
+eval "$(fzf --zsh)"
+
+# Smart history search (Ctrl-R); local-only, sync opt-in later
+eval "$(atuin init zsh --disable-up-arrow)"
+
+# Prompt
+eval "$(starship init zsh)"
+
+# Ctrl-G: turn the command line into a shell command via Claude Code (uses subscription)
+_claude_cmd() {
+  [ -z "$BUFFER" ] && return
+  local desc="$BUFFER" out
+  BUFFER="… asking claude"; zle -R
+  out=$(claude -p "Translate to a single zsh command for macOS. \
+Output ONLY the command, no prose, no markdown, no code fences: $desc" \
+    --model claude-haiku-4-5-20251001 2>/dev/null \
+    | sed -e '/^[[:space:]]*```/d' -e '/^[[:space:]]*$/d')
+  # Preserve the typed text if claude returned nothing (network/error)
+  [ -n "$out" ] && BUFFER="$out" || BUFFER="$desc"
+  CURSOR=${#BUFFER}; zle -R
+}
+zle -N _claude_cmd
+bindkey '^g' _claude_cmd
+
+# Word-wise movement/deletion (Opt+arrows, Opt+Backspace)
+bindkey "^[[1;3C" forward-word        # Opt+Right
+bindkey "^[[1;3D" backward-word       # Opt+Left
+bindkey "^[^?"    backward-kill-word  # Opt+Backspace
+
+# Shift-select: Shift+arrows select text; Shift+Opt+arrows select by word.
+# Typing or Backspace/Delete replaces the selection.
+source "$HOME/.config/zsh/shift-select.zsh"
+
+# Syntax highlighting — MUST be sourced last
+source "$(brew --prefix)/share/zsh-fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
