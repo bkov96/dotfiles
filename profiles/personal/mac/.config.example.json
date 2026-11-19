@@ -4,7 +4,9 @@
     "GIT_CONFIG_NAME": "",
     "HOMELAB_HOST": "",
     "SSH_PRIVATE_KEY_B64": "",
-    "SSH_PUBLIC_KEY_B64": ""
+    "SSH_PUBLIC_KEY_B64": "",
+    "GITHUB_PACKAGES_USER": "",
+    "GITHUB_PACKAGES_TOKEN": ""
   },
   "paths": {
     ".atuin.toml": "~/.config/atuin/config.toml",

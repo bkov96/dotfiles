@@ -6,13 +6,15 @@ Setup of the `personal/mac` profile on a fresh macOS install: shell and terminal
 
 A Bitwarden item named `dotfiles/personal/mac` with these custom fields:
 
-| Field                 | Value                                                        |
-| --------------------- | ------------------------------------------------------------ |
-| `GIT_CONFIG_NAME`     | Git author name                                              |
-| `GIT_CONFIG_EMAIL`    | Git author email                                             |
-| `HOMELAB_HOST`        | Homelab hostname or IP (for `homelab-admin` / `homelab-ops`) |
-| `SSH_PRIVATE_KEY_B64` | base64 of `~/.ssh/id_ed25519_homelab`                        |
-| `SSH_PUBLIC_KEY_B64`  | base64 of `~/.ssh/id_ed25519_homelab.pub`                    |
+| Field                   | Value                                                        |
+| ----------------------- | ------------------------------------------------------------ |
+| `GIT_CONFIG_NAME`       | Git author name                                              |
+| `GIT_CONFIG_EMAIL`      | Git author email                                             |
+| `HOMELAB_HOST`          | Homelab hostname or IP (for `homelab-admin` / `homelab-ops`) |
+| `SSH_PRIVATE_KEY_B64`   | base64 of `~/.ssh/id_ed25519_homelab`                        |
+| `SSH_PUBLIC_KEY_B64`    | base64 of `~/.ssh/id_ed25519_homelab.pub`                    |
+| `GITHUB_PACKAGES_USER`  | GitHub Packages username (exported in `.zshrc`)              |
+| `GITHUB_PACKAGES_TOKEN` | GitHub Packages token (exported in `.zshrc`)                 |
 
 No homelab key pair yet? Generate and encode it:
 
