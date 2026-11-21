@@ -25,6 +25,7 @@ brew "ripgrep"
 brew "shellcheck"
 brew "shfmt"
 brew "starship"
+brew "uv"
 brew "watchman"
 brew "wget"
 brew "xcodes"
@@ -39,10 +40,12 @@ cask "dotnet-sdk@10"
 cask "font-jetbrains-mono-nerd-font"
 cask "fork"
 cask "ghostty"
+cask "jagex"
 cask "karabiner-elements"
 cask "logi-options+"
 cask "maccy"
 cask "orbstack"
+cask "runelite"
 cask "stats"
 cask "telegram"
 cask "visual-studio-code"
@@ -50,6 +53,7 @@ mas "Infuse", id: 1136220934
 mas "Moom Classic", id: 419330170
 mas "Numbers", id: 361304891
 mas "Pages", id: 361309726
+mas "WireGuard", id: 1451685025
 vscode "42crunch.vscode-openapi"
 vscode "christian-kohler.npm-intellisense"
 vscode "codezombiech.gitignore"
