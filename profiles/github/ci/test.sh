@@ -93,6 +93,29 @@ assert_not_exists "$STRAY" "link: no rendered file leaked into repo"
 rm -f "$STRAY"
 
 # ---------------------------------------------------------------
+log_header "Test: link (directory)"
+
+# Linked directories: an existing real directory is moved aside, and
+# re-linking replaces the symlink instead of nesting a link inside it.
+TESTDIR_DEST="$TEST_HOME/.config/testdir"
+rm -rf "$TESTDIR_DEST"
+mkdir -p "$TESTDIR_DEST"
+
+sh lib/link.sh "$PROFILE_DIR" "$DOTFILES_DIR"
+
+assert_symlink "$TESTDIR_DEST" "link: directory is a symlink"
+assert_contains "testdir" "$TESTDIR_DEST/file" "link: directory contents reachable"
+if ls -d "$TESTDIR_DEST".bak.* >/dev/null 2>&1; then
+  ok "link: existing directory moved aside"
+else
+  ko "link: existing directory moved aside"
+fi
+
+sh lib/link.sh "$PROFILE_DIR" "$DOTFILES_DIR"
+
+assert_not_exists "$REPO_DIR/$DOTFILES_DIR/.testdir/.testdir" "link: re-link does not nest inside repo"
+
+# ---------------------------------------------------------------
 log_header "Test: gather (round-trip idempotency)"
 
 sh lib/gather.sh "$PROFILE_DIR" "$DOTFILES_DIR"

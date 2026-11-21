@@ -5,6 +5,7 @@
   },
   "paths": {
     ".testconfig.tmpl": "~/.testconfig",
-    ".testrc": "~/.testrc"
+    ".testrc": "~/.testrc",
+    ".testdir": "~/.config/testdir"
   }
 }

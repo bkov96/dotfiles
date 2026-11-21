@@ -80,3 +80,6 @@ profiles/homelab/mac/ops/services/caddy/routes/*
 profiles/homelab/mac/ops/services/monitoring/grafana/provisioning/alerting/contact-points.yml
 profiles/homelab/mac/ops/services/monitoring/grafana/provisioning/alerting/alert-rules.yml
 profiles/homelab/mac/ops/services/monitoring/grafana/provisioning/dashboards/node-exporter-full.json
+
+# Karabiner-Elements writes these into the linked config directory
+profiles/*/*/dotfiles/.karabiner/automatic_backups/

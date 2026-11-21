@@ -35,6 +35,7 @@ The active profile is selected by environment variables, exported by the linked 
 | --------------------------------- | -------------------------------------------------------------- | ------------------------------------------ |
 | Plain (e.g. `.zshrc`)             | Symlinked to the destination                                   | Automatic — the machine file *is* the repo file; just commit |
 | Template (e.g. `.gitconfig.tmpl`) | Rendered with `envsubst`, written as a copy without `.tmpl`    | Run `dotfiles configs gather`              |
+| Directory (e.g. `.karabiner/`)    | Symlinked as a whole; an existing real directory is moved to `<dest>.bak.<timestamp>` | Automatic; just commit |
 
 ## 📝 `.config.json`
 

@@ -53,7 +53,15 @@ for src in "$DOTFILES_DIR"/.*; do
     envsubst "$ENVSUBST_VARS" <"$src" >"$dest"
     log_item "Rendered $filename → $dest"
   else
-    ln -sf "$REPO_DIR/$src" "$dest"
+    # A real directory at the destination (e.g. created by the app on first
+    # launch) would make ln nest the link inside it, so move it aside
+    if [ -d "$src" ] && [ -d "$dest" ] && [ ! -L "$dest" ]; then
+      backup="$dest.bak.$(date +%Y%m%d%H%M%S)"
+      mv "$dest" "$backup"
+      log_item "Moved existing $dest → $backup"
+    fi
+    # -n replaces an existing directory symlink instead of following it
+    ln -sfn "$REPO_DIR/$src" "$dest"
     log_item "Linked $filename → $dest"
   fi
 

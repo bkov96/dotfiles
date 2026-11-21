@@ -45,3 +45,16 @@ make configs-link       # render templates, symlink dotfiles, decode SSH keys
 | Changed a `.tmpl` in the repo          | `dfs configs link`, then `exec zsh`         |
 | Edited a rendered file on the machine  | `dfs configs gather`, then commit           |
 | Edited a symlinked file                | Just commit                                 |
+
+## ⌨️ Karabiner-Elements
+
+`~/.config/karabiner` is a symlink to `profiles/personal/mac/dotfiles/.karabiner/`. The whole directory is linked, not just `karabiner.json`, because Karabiner replaces the file on save, which would break a file symlink. Changes made in the Karabiner UI land in the repo, so just commit them.
+
+The tracked rule adapts the Hungarian input source to the US (ANSI) MacBook keyboard. It only applies while a Hungarian input source is active:
+
+| Key        | Types |
+| ---------- | ----- |
+| `` ` ``    | `0`   |
+| `Ctrl+Z`   | `í`   |
+
+On first launch, grant Karabiner the Input Monitoring permission and enable its driver extension when macOS asks.
