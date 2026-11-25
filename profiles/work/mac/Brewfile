@@ -1,5 +1,4 @@
 tap "azure/kubelogin", "https://github.com/Azure/homebrew-kubelogin"
-tap "facebook/fb", "https://github.com/meta/homebrew-fb.git"
 brew "shellcheck"
 brew "actionlint"
 brew "atuin"
@@ -8,8 +7,6 @@ brew "bat"
 brew "bitwarden-cli"
 brew "carapace"
 brew "cloudflared"
-brew "cocoapods"
-brew "eas-cli"
 brew "eza"
 brew "fd"
 brew "fzf"
@@ -28,7 +25,6 @@ brew "mas"
 brew "mole"
 brew "nuget"
 brew "nvm"
-brew "openjdk@21"
 brew "opentofu"
 brew "ripgrep"
 brew "shfmt"
@@ -61,14 +57,10 @@ cask "tailscale-app"
 cask "telegram"
 cask "visual-studio-code"
 cask "vlc"
-mas "Developer", id: 640199958
-mas "Infuse", id: 1136220934
 mas "Moom Classic", id: 419330170
 mas "Numbers", id: 361304891
 mas "Pages", id: 361309726
 mas "Slack", id: 803453959
-mas "WireGuard", id: 1451685025
-mas "Xcode", id: 497799835
 vscode "42crunch.vscode-openapi"
 vscode "christian-kohler.npm-intellisense"
 vscode "codezombiech.gitignore"
@@ -79,7 +71,6 @@ vscode "drblury.protobuf-vsc"
 vscode "eamodio.gitlens"
 vscode "eriklynd.json-tools"
 vscode "esbenp.prettier-vscode"
-vscode "expo.vscode-expo-tools"
 vscode "fernandoescolar.vscode-solution-explorer"
 vscode "hashicorp.hcl"
 vscode "hashicorp.terraform"

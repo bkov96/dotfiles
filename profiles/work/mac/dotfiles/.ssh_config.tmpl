@@ -6,13 +6,3 @@ Include ~/.orbstack/ssh/config
 Host *
   UseKeychain yes
   AddKeysToAgent yes
-
-Host homelab-admin
-  HostName ${HOMELAB_HOST}
-  User admin
-  IdentityFile ~/.ssh/id_ed25519_homelab
-
-Host homelab-ops
-  HostName ${HOMELAB_HOST}
-  User ops
-  IdentityFile ~/.ssh/id_ed25519_homelab

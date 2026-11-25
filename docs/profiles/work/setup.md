@@ -10,19 +10,8 @@ A Bitwarden item named `dotfiles/work/mac` with these custom fields:
 | ----------------------- | ------------------------------------------------------------ |
 | `GIT_CONFIG_NAME`       | Git author name                                              |
 | `GIT_CONFIG_EMAIL`      | Git author email                                             |
-| `HOMELAB_HOST`          | Homelab hostname or IP (for the `homelab-admin` / `homelab-ops` SSH hosts) |
-| `SSH_PRIVATE_KEY_B64`   | base64 of `~/.ssh/id_ed25519_homelab`                        |
-| `SSH_PUBLIC_KEY_B64`    | base64 of `~/.ssh/id_ed25519_homelab.pub`                    |
 | `GITHUB_PACKAGES_USER`  | GitHub Packages username (exported in `.zshrc`)              |
 | `GITHUB_PACKAGES_TOKEN` | GitHub Packages token (exported in `.zshrc`)                 |
-
-No homelab key pair yet? Generate and encode it:
-
-```sh
-ssh-keygen -t ed25519 -C "homelab" -f ~/.ssh/id_ed25519_homelab
-base64 -i ~/.ssh/id_ed25519_homelab | tr -d '\n'       # → SSH_PRIVATE_KEY_B64
-base64 -i ~/.ssh/id_ed25519_homelab.pub | tr -d '\n'   # → SSH_PUBLIC_KEY_B64
-```
 
 ## 🚀 Steps
 
@@ -69,14 +58,13 @@ Prompts for the Bitwarden master password, then renders and links everything:
 | `.zshrc.tmpl`                       | `~/.zshrc`                          |
 | `.gitconfig.tmpl`                   | `~/.gitconfig`                      |
 | `.ssh_config.tmpl`                  | `~/.ssh/config`                     |
-| `.ssh_id_ed25519_homelab[.pub].tmpl` | `~/.ssh/id_ed25519_homelab[.pub]`  |
 | `.ghostty_config`                   | `~/.config/ghostty/config`          |
 | `.starship.toml`                    | `~/.config/starship.toml`           |
 | `.atuin.toml`                       | `~/.config/atuin/config.toml`       |
 | `.k9s_skin.yaml`                    | `~/.config/k9s/skins/ghostty.yaml`  |
 | `.zsh_shift_select.zsh`             | `~/.config/zsh/shift-select.zsh`    |
 
-A post-link hook then decodes the base64 SSH keys, sets their permissions (600 / 644), and seeds `~/.config/k9s/config.yaml` with the `ghostty` skin if the file doesn't exist.
+A post-link hook then seeds `~/.config/k9s/config.yaml` with the `ghostty` skin if the file doesn't exist.
 
 ### 6. Manual macOS steps
 
@@ -89,7 +77,6 @@ Open a new Ghostty window, then:
 
 ```sh
 dfs env               # work / mac
-ssh homelab-ops       # if the homelab is up
 ```
 
 ## 🔁 Day to day
